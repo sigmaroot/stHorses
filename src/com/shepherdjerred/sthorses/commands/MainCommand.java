@@ -50,8 +50,7 @@ public class MainCommand implements CommandExecutor {
 
 						// Send an error message
 						String prefix = Main.getInstance().getMessagesString("prefix.server");
-						String invalidArg = Main.getInstance().getMessagesString("messages.invalid-arg")
-								.replaceAll("%arg%", args[0]).replaceAll("%args%", "<reload>");
+						String invalidArg = Main.getInstance().getMessagesString("messages.invalid-arg").replaceAll("%arg%", args[0]).replaceAll("%args%", "<reload>");
 
 						sender.sendMessage(prefix + invalidArg);
 
@@ -62,8 +61,7 @@ public class MainCommand implements CommandExecutor {
 
 					// Send an error message
 					String prefix = Main.getInstance().getMessagesString("prefix.server");
-					String noArgs = Main.getInstance().getMessagesString("messages.no-args").replaceAll("%args%",
-							"<reload>");
+					String noArgs = Main.getInstance().getMessagesString("messages.no-args").replaceAll("%args%", "<reload>");
 
 					sender.sendMessage(prefix + noArgs);
 
@@ -85,8 +83,7 @@ public class MainCommand implements CommandExecutor {
 					} else { // If the argument doesn't match any of the options
 
 						// Send an error message
-						String invalidArg = Main.getInstance().getMessagesString("messages.invalid-arg")
-								.replaceAll("%arg%", args[0]).replaceAll("%args%", "<reload>");
+						String invalidArg = Main.getInstance().getMessagesString("messages.invalid-arg").replaceAll("%arg%", args[0]).replaceAll("%args%", "<reload>");
 
 						Main.getInstance().getLogger().info(invalidArg.replaceAll("%args%", "<reload>"));
 

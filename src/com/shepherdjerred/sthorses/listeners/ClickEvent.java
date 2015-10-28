@@ -20,70 +20,73 @@ public class ClickEvent implements Listener {
 	@EventHandler
 	public void onClickEvent(InventoryClickEvent event) {
 
-		if (event.getClickedInventory().getHolder() instanceof Horse) {
+		if (event.getWhoClicked().hasPermission("stHorses.save")) {
 
-			if (event.getAction() == InventoryAction.PICKUP_ALL) {
+			// Check that the inventory belongs to a horse
+			if (event.getClickedInventory().getHolder() instanceof Horse) {
 
-				Player player = (Player) event.getWhoClicked();
+				// Check that an item was picked up, this allows shift left-clicking to take the saddle off without removing the horse
+				if (event.getAction() == InventoryAction.PICKUP_ALL) {
 
-				Horse horse = (Horse) event.getClickedInventory().getHolder();
+					// Get the player who took the item
+					Player player = (Player) event.getWhoClicked();
 
-				if (event.getSlot() == 0 && event.getCurrentItem().getType() == Material.SADDLE) {
+					// Get the horse who the inventory belongs to
+					Horse horse = (Horse) event.getClickedInventory().getHolder();
 
-					event.setCurrentItem(new ItemStack(Material.AIR, 1));
+					// Check that the slot was 0, and the item was a saddle
+					if (event.getSlot() == 0 && event.getCurrentItem().getType() == Material.SADDLE) {
 
-					String horseVariant = horse.getVariant().toString();
-					String horseColor = horse.getColor().toString();
-					String horseStyle = horse.getStyle().toString();
-					String horseDomestication = String.valueOf(horse.getDomestication());
-					String horseMaxDomestication = String.valueOf(horse.getMaxDomestication());
-					String horseJump = String.valueOf(horse.getJumpStrength());
-					String horseName = horse.getCustomName();
-					String horseMaxHealth = String.valueOf(horse.getMaxHealth());
-					String horseHealth = String.valueOf(horse.getHealth());
-					String horseAge = String.valueOf(horse.getAge());
-					String horseOwner = horse.getOwner().getName();
-					String horseUUID = horse.getOwner().getUniqueId().toString();
+						// Set the picked up item to air so that no saddle will drop
+						event.setCurrentItem(new ItemStack(Material.AIR, 1));
 
-					for (ItemStack horseItem : horse.getInventory()) {
+						// Empty the horses inventory
+						for (ItemStack horseItem : horse.getInventory()) {
 
-						if (horseItem != null) {
+							if (horseItem != null) {
 
-							horse.getWorld().dropItem(horse.getLocation(), horseItem);
+								horse.getWorld().dropItem(horse.getLocation(), horseItem);
 
-							horseItem.setType(Material.AIR);
+								horseItem.setType(Material.AIR);
+							}
+
 						}
+
+						// Create variables to store the horses data
+						ItemStack saddle = new ItemStack(Material.SADDLE, 1);
+						ItemMeta saddleMeta = saddle.getItemMeta();
+
+						List<String> saddleLore = new ArrayList<String>();
+
+						// Add the horses data to the lore variable
+						saddleLore.add("Type: " + horse.getVariant().toString());
+						saddleLore.add("Color: " + horse.getColor().toString());
+						saddleLore.add("Style: " + horse.getStyle().toString());
+						saddleLore.add("Dom: " + String.valueOf(horse.getDomestication()));
+						saddleLore.add("MaxDom: " + String.valueOf(horse.getMaxDomestication()));
+						saddleLore.add("Jump: " + String.valueOf(horse.getJumpStrength()));
+						saddleLore.add("Name: " + horse.getCustomName());
+						saddleLore.add("Health: " + String.valueOf(horse.getMaxHealth()));
+						saddleLore.add("MaxHealth: " + String.valueOf(horse.getHealth()));
+						saddleLore.add("Age: " + String.valueOf(horse.getAge()));
+						saddleLore.add("Owner: " + horse.getOwner().getName());
+						saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
+
+						// Set the lore
+						saddleMeta.setLore(saddleLore);
+
+						// Save the lore
+						saddle.setItemMeta(saddleMeta);
+
+						// Give a saddle
+						player.getInventory().addItem(saddle);
+
+						// Remove the horse
+						horse.remove();
 
 					}
 
-					horse.remove();
-
-					ItemStack saddle = new ItemStack(Material.SADDLE, 1);
-					ItemMeta saddleMeta = saddle.getItemMeta();
-
-					List<String> saddleLore = new ArrayList<String>();
-
-					saddleLore.add("Type: " + horseVariant);
-					saddleLore.add("Color: " + horseColor);
-					saddleLore.add("Style: " + horseStyle);
-					saddleLore.add("Dom: " + horseDomestication);
-					saddleLore.add("MaxDom: " + horseMaxDomestication);
-					saddleLore.add("Jump: " + horseJump);
-					saddleLore.add("Name: " + horseName);
-					saddleLore.add("Health: " + horseHealth);
-					saddleLore.add("MaxHealth: " + horseMaxHealth);
-					saddleLore.add("Age: " + horseAge);
-					saddleLore.add("Owner: " + horseOwner);
-					saddleLore.add("UUID: " + horseUUID);
-
-					saddleMeta.setLore(saddleLore);
-
-					saddle.setItemMeta(saddleMeta);
-
-					player.getInventory().addItem(saddle);
-
 				}
-
 			}
 		}
 
