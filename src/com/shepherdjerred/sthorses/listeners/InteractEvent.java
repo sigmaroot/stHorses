@@ -101,11 +101,11 @@ public class InteractEvent implements Listener {
 									horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
 									
 									
-									// Set current health
-									horse.setHealth(Double.parseDouble(horseHealth[0]));
-									
 									// Apply max heath value
 									horse.setMaxHealth(Double.parseDouble(horseHealth[1]));
+									
+									// Set current health
+									horse.setHealth(Double.parseDouble(horseHealth[0]));
 									
 
 									// Apply domestication value
