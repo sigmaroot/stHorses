@@ -2,9 +2,11 @@
 package com.shepherdjerred.sthorses.listeners;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
@@ -19,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.shepherdjerred.sthorses.Main;
+
+import net.minecraft.server.v1_8_R3.GenericAttributes;
 
 
 public class InteractEvent implements Listener {
@@ -52,10 +56,10 @@ public class InteractEvent implements Listener {
 								List<String> itemLore = itemMeta.getLore();
 
 								// Check that the lore is ours
-								if (itemLore.get(0).contains("Type:") && itemLore.get(1).contains("Color:") && itemLore.get(2).contains("Style:")
-										&& itemLore.get(3).contains("Dom:") && itemLore.get(4).contains("MaxDom:") && itemLore.get(5).contains("Jump:")
-										&& itemLore.get(6).contains("Name") && itemLore.get(7).contains("Health:") && itemLore.get(8).contains("MaxHealth:")
-										&& itemLore.get(9).contains("Age:") && itemLore.get(10).contains("Owner:") && itemLore.get(11).contains("UUID:")) {
+								if (itemLore.get(0).contains("Name:") && itemLore.get(1).contains("Owner:") && itemLore.get(2).contains("Variant:")
+										&& itemLore.get(3).contains("Color:") && itemLore.get(4).contains("Style:") && itemLore.get(5).contains("Jump:")
+										&& itemLore.get(6).contains("Speed:") && itemLore.get(7).contains("Health:") && itemLore.get(8).contains("Domestication:")
+										&& itemLore.get(9).contains("Age") && itemLore.get(10).contains("UUID:")) {
 
 									// Remove the saddle
 									player.getInventory().removeItem(item);
@@ -66,44 +70,61 @@ public class InteractEvent implements Listener {
 
 									// Spawn a horse
 									Horse horse = event.getClickedBlock().getWorld().spawn(location, Horse.class);
-
-									// Apply variant value
-									horse.setVariant(Variant.valueOf(itemLore.get(0).replace("Type: ", "")));
-
-									// Apply color value
-									horse.setColor(Color.valueOf(itemLore.get(1).replace("Color: ", "")));
-
-									// Apply style value
-									horse.setStyle(Style.valueOf(itemLore.get(2).replace("Style: ", "")));
-
-									// Apply domestication value
-									horse.setDomestication(Integer.parseInt(itemLore.get(3).replace("Dom: ", "")));
-
-									// Apply max domestication value
-									horse.setMaxDomestication(Integer.parseInt(itemLore.get(4).replace("MaxDom: ", "")));
-
-									// Apply jump strength value
-									horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));
-
+									
+									
+									// Get horse NMS
+									CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
+									
+									String[] horseHealth = itemLore.get(7).replace("Health: ", "").split("/");
+									String[] horseDom = itemLore.get(8).replace("Domestication: ", "").split("/");
+									
 									// Apply the horses name
-									if (itemLore.get(6).replace("Name: ", "") != "null") {
-										horse.setCustomName(itemLore.get(6).replace("Name: ", ""));
+									if ((!itemLore.get(0).equals("Name: None"))) {
+										horse.setCustomName(itemLore.get(0).replace("Name: ", ""));
 									}
 
+									// Apply variant value
+									horse.setVariant(Variant.valueOf(itemLore.get(2).replace("Variant: ", "")));
+
+									// Apply color value
+									horse.setColor(Color.valueOf(itemLore.get(3).replace("Color: ", "")));
+
+									// Apply style value
+									horse.setStyle(Style.valueOf(itemLore.get(4).replace("Style: ", "")));
+									
+									
+									// Apply jump strength value
+									horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));
+									
+									// Set the speed
+									horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
+									
+									
 									// Set current health
-									horse.setHealth(Double.parseDouble(itemLore.get(7).replace("Health: ", "")));
-
+									horse.setHealth(Double.parseDouble(horseHealth[0]));
+									
 									// Apply max heath value
-									horse.setMaxHealth(Double.parseDouble(itemLore.get(8).replace("MaxHealth: ", "")));
+									horse.setMaxHealth(Double.parseDouble(horseHealth[1]));
+									
 
+									// Apply domestication value
+									horse.setDomestication(Integer.parseInt(horseDom[0]));
+
+									// Apply max domestication value
+									horse.setMaxDomestication(Integer.parseInt(horseDom[1]));
+
+									
 									// Apply age value
 									horse.setAge(Integer.parseInt(itemLore.get(9).replace("Age: ", "")));
 
 									// Set the owner
-									horse.setOwner((AnimalTamer) Main.getInstance().getServer().getPlayer(itemLore.get(10).replace("Owner: ", "")));
+									horse.setOwner((AnimalTamer) Main.getInstance().getServer().getPlayer((UUID.fromString(itemLore.get(10).replace("UUID: ", "")))));
 
+									
+									
+									// Give the horse a saddle
 									horse.getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
-
+									
 								}
 
 							}

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +15,10 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import net.minecraft.server.v1_8_R3.GenericAttributes;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.NBTTagList;
 
 
 public class ClickEvent implements Listener {
@@ -52,24 +58,33 @@ public class ClickEvent implements Listener {
 
 						}
 
+						// Get horse NMS
+						CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
+
 						// Create variables to store the horses data
 						ItemStack saddle = new ItemStack(Material.SADDLE, 1);
 						ItemMeta saddleMeta = saddle.getItemMeta();
 
+						// Create list to hold the lore
 						List<String> saddleLore = new ArrayList<String>();
 
 						// Add the horses data to the lore variable
-						saddleLore.add("Type: " + horse.getVariant().toString());
+						
+						if (horse.getCustomName() != null) {
+							saddleLore.add("Name: " + horse.getCustomName());
+						} else {
+							saddleLore.add("Name: None");
+						}
+						
+						saddleLore.add("Owner: " + horse.getOwner().getName());
+						saddleLore.add("Variant: " + horse.getVariant().toString());
 						saddleLore.add("Color: " + horse.getColor().toString());
 						saddleLore.add("Style: " + horse.getStyle().toString());
-						saddleLore.add("Dom: " + String.valueOf(horse.getDomestication()));
-						saddleLore.add("MaxDom: " + String.valueOf(horse.getMaxDomestication()));
 						saddleLore.add("Jump: " + String.valueOf(horse.getJumpStrength()));
-						saddleLore.add("Name: " + horse.getCustomName());
-						saddleLore.add("Health: " + String.valueOf(horse.getMaxHealth()));
-						saddleLore.add("MaxHealth: " + String.valueOf(horse.getHealth()));
+						saddleLore.add("Speed: " + String.valueOf(horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue()));
+						saddleLore.add("Health: " + String.valueOf(horse.getMaxHealth() + "/" + String.valueOf(horse.getHealth())));
+						saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
 						saddleLore.add("Age: " + String.valueOf(horse.getAge()));
-						saddleLore.add("Owner: " + horse.getOwner().getName());
 						saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
 
 						// Set the lore
@@ -79,7 +94,7 @@ public class ClickEvent implements Listener {
 						saddle.setItemMeta(saddleMeta);
 
 						// Give a saddle
-						player.getInventory().addItem(saddle);
+						player.getInventory().addItem(addGlow(saddle));
 
 						// Remove the horse
 						horse.remove();
@@ -90,6 +105,21 @@ public class ClickEvent implements Listener {
 			}
 		}
 
+	}
+
+	private ItemStack addGlow(ItemStack item) {
+		net.minecraft.server.v1_8_R3.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+		NBTTagCompound tag = null;
+		if (!nmsStack.hasTag()) {
+			tag = new NBTTagCompound();
+			nmsStack.setTag(tag);
+		}
+		if (tag == null)
+			tag = nmsStack.getTag();
+		NBTTagList ench = new NBTTagList();
+		tag.set("ench", ench);
+		nmsStack.setTag(tag);
+		return CraftItemStack.asCraftMirror(nmsStack);
 	}
 
 }
