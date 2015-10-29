@@ -17,13 +17,13 @@ permissions:
         children:
             stHorses.reload: true
             stHorses.save: true
-            stHorses.spawn: true
+            stHorses.store: true
     stHorses.reload:
         description: Gives access to /sth reload
         default: op
     stHorses.save:
         description: Allows saving horses to saddles
         default: true
-    stHorses.spawn:
+    stHorses.store:
         description: Allows spawning horses from saddles
         default: true

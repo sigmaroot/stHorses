@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,13 +18,17 @@ import net.minecraft.server.v1_8_R3.GenericAttributes;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
 
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+
 
 public class ClickEvent implements Listener {
 
 	@EventHandler
 	public void onClickEvent(InventoryClickEvent event) {
 
-		if (event.getWhoClicked().hasPermission("stHorses.save")) {
+		// Check if player is allowed to store a horse
+		if (event.getWhoClicked().hasPermission("stHorses.store")) {
 
 			// Check that the inventory belongs to a horse
 			if (event.getClickedInventory().getHolder() instanceof Horse) {

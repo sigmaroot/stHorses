@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
@@ -23,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.shepherdjerred.sthorses.Main;
 
 import net.minecraft.server.v1_8_R3.GenericAttributes;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 
 
 public class InteractEvent implements Listener {
@@ -35,6 +35,7 @@ public class InteractEvent implements Listener {
 
 			Player player = event.getPlayer();
 
+			// Check if player is allowed to spawn a horse
 			if (player.hasPermission("stHorses.spawn")) {
 
 				// See if the player has an item in their hand
