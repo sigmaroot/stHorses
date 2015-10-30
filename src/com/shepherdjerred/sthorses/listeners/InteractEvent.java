@@ -128,6 +128,14 @@ public class InteractEvent implements Listener {
 					}
 				}
 
+			} else {
+				
+				// Send an error message
+				String prefix = Main.getInstance().getMessagesString("prefix.server");
+				String noPerms = Main.getInstance().getMessagesString("messages.no-perms");
+
+				player.sendMessage(prefix + noPerms);
+				
 			}
 
 		}
