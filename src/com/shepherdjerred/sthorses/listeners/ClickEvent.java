@@ -26,7 +26,7 @@ public class ClickEvent implements Listener {
 
 	@EventHandler
 	public void onClickEvent(InventoryClickEvent event) {
-		
+
 		// Get the player who took the item
 		Player player = (Player) event.getWhoClicked();
 
@@ -81,13 +81,12 @@ public class ClickEvent implements Listener {
 								} else {
 									saddleLore.add("Name: None");
 								}
-								
+
 								if (horse.getOwner() != null) {
 									saddleLore.add("Owner: " + horse.getOwner().getName());
 								} else {
 									saddleLore.add("Owner: " + player.getName());
 								}
-
 
 								saddleLore.add("Variant: " + horse.getVariant().toString());
 								saddleLore.add("Color: " + horse.getColor().toString());
@@ -97,14 +96,13 @@ public class ClickEvent implements Listener {
 								saddleLore.add("Health: " + String.valueOf(horse.getMaxHealth() + "/" + String.valueOf(horse.getHealth())));
 								saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
 								saddleLore.add("Age: " + String.valueOf(horse.getAge()));
-								
+
 								if (horse.getOwner() != null) {
 									saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
 								} else {
 									saddleLore.add("UUID: " + player.getUniqueId().toString());
 								}
-								
-						
+
 								// Set the lore
 								saddleMeta.setLore(saddleLore);
 

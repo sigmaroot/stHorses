@@ -1,3 +1,4 @@
+
 package com.shepherdjerred.sthorses;
 
 import java.io.File;
@@ -9,82 +10,83 @@ import java.io.OutputStream;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+
 public class Config {
 
-    // Provide Instances
-    private static Config instance;
+	// Provide Instances
+	private static Config instance;
 
-    public Config() {
-	instance = this;
-    }
-
-    public static Config getInstance() {
-	if (instance == null) {
-	    instance = new Config();
-	}
-	return instance;
-    }
-
-    public File messagesf;
-    public FileConfiguration messages;
-
-    // Load/reload files
-    public void loadFiles() {
-
-	messagesf = new File(Main.getInstance().getDataFolder(), "messages.yml");
-
-	if (!messagesf.exists()) {
-	    messagesf.getParentFile().mkdirs();
-	    copy(Main.getInstance().getResource("messages.yml"), messagesf);
+	public Config() {
+		instance = this;
 	}
 
-	messages = new YamlConfiguration();
-
-	try {
-
-	    messages.load(messagesf);
-
-	} catch (Exception e) {
-	    e.printStackTrace();
+	public static Config getInstance() {
+		if (instance == null) {
+			instance = new Config();
+		}
+		return instance;
 	}
 
-    }
+	public File messagesf;
+	public FileConfiguration messages;
 
-    // Save files
-    public void saveFiles(String input) {
-	try {
+	// Load/reload files
+	public void loadFiles() {
 
-	    if (input.equals("messages")) {
-		messages.save(messagesf);
-	    }
+		messagesf = new File(Main.getInstance().getDataFolder(), "messages.yml");
 
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
-    }
+		if (!messagesf.exists()) {
+			messagesf.getParentFile().mkdirs();
+			copy(Main.getInstance().getResource("messages.yml"), messagesf);
+		}
 
-    // Copy default files
-    public void copy(InputStream in, File file) {
+		messages = new YamlConfiguration();
 
-	try {
+		try {
 
-	    OutputStream out = new FileOutputStream(file);
-	    byte[] buf = new byte[1024];
-	    int len;
-	    while ((len = in.read(buf)) > 0) {
+			messages.load(messagesf);
 
-		out.write(buf, 0, len);
-
-	    }
-	    out.close();
-	    in.close();
-
-	} catch (Exception e) {
-
-	    e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
-    }
+	// Save files
+	public void saveFiles(String input) {
+		try {
+
+			if (input.equals("messages")) {
+				messages.save(messagesf);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Copy default files
+	public void copy(InputStream in, File file) {
+
+		try {
+
+			OutputStream out = new FileOutputStream(file);
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+
+				out.write(buf, 0, len);
+
+			}
+			out.close();
+			in.close();
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+		}
+
+	}
 
 }
