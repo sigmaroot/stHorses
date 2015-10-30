@@ -82,7 +82,7 @@ public class ClickEvent implements Listener {
 									saddleLore.add("Name: None");
 								}
 								
-								if (horse.getOwner().getName() != null) {
+								if (horse.getOwner() != null) {
 									saddleLore.add("Owner: " + horse.getOwner().getName());
 								} else {
 									saddleLore.add("Owner: " + player.getName());
