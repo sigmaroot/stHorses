@@ -1,5 +1,5 @@
 name: stHorses
-version: 1.1.2
+version: 1.1.3
 description: Store horses in a saddle
 author: Jerred Shepherd (RiotShielder)
 website: http://shepherdjerred.com/
@@ -21,7 +21,7 @@ permissions:
     stHorses.reload:
         description: Gives access to /sth reload
         default: op
-    stHorses.save:
+    stHorses.spawn:
         description: Allows saving horses to saddles
         default: true
     stHorses.store:

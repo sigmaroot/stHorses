@@ -26,6 +26,9 @@ public class ClickEvent implements Listener {
 
 	@EventHandler
 	public void onClickEvent(InventoryClickEvent event) {
+		
+		// Get the player who took the item
+		Player player = (Player) event.getWhoClicked();
 
 		// Check if player is allowed to store a horse
 		if (event.getWhoClicked().hasPermission("stHorses.store")) {
@@ -39,9 +42,6 @@ public class ClickEvent implements Listener {
 
 						// Check that an item was picked up, this allows shift left-clicking to take the saddle off without removing the horse
 						if (event.getAction() == InventoryAction.PICKUP_ALL) {
-
-							// Get the player who took the item
-							Player player = (Player) event.getWhoClicked();
 
 							// Get the horse who the inventory belongs to
 							Horse horse = (Horse) event.getClickedInventory().getHolder();
