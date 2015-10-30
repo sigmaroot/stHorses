@@ -81,8 +81,14 @@ public class ClickEvent implements Listener {
 								} else {
 									saddleLore.add("Name: None");
 								}
+								
+								if (horse.getOwner().getName() != null) {
+									saddleLore.add("Owner: " + horse.getOwner().getName());
+								} else {
+									saddleLore.add("Owner: " + player.getName());
+								}
 
-								saddleLore.add("Owner: " + horse.getOwner().getName());
+
 								saddleLore.add("Variant: " + horse.getVariant().toString());
 								saddleLore.add("Color: " + horse.getColor().toString());
 								saddleLore.add("Style: " + horse.getStyle().toString());
@@ -91,8 +97,14 @@ public class ClickEvent implements Listener {
 								saddleLore.add("Health: " + String.valueOf(horse.getMaxHealth() + "/" + String.valueOf(horse.getHealth())));
 								saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
 								saddleLore.add("Age: " + String.valueOf(horse.getAge()));
-								saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
-
+								
+								if (horse.getOwner().getUniqueId() != null) {
+									saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
+								} else {
+									saddleLore.add("UUID: " + player.getUniqueId().toString());
+								}
+								
+						
 								// Set the lore
 								saddleMeta.setLore(saddleLore);
 
