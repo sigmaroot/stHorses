@@ -71,14 +71,13 @@ public class InteractEvent implements Listener {
 
 									// Spawn a horse
 									Horse horse = event.getClickedBlock().getWorld().spawn(location, Horse.class);
-									
-									
+
 									// Get horse NMS
 									CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
-									
+
 									String[] horseHealth = itemLore.get(7).replace("Health: ", "").split("/");
 									String[] horseDom = itemLore.get(8).replace("Domestication: ", "").split("/");
-									
+
 									// Apply the horses name
 									if ((!itemLore.get(0).equals("Name: None"))) {
 										horse.setCustomName(itemLore.get(0).replace("Name: ", ""));
@@ -92,21 +91,19 @@ public class InteractEvent implements Listener {
 
 									// Apply style value
 									horse.setStyle(Style.valueOf(itemLore.get(4).replace("Style: ", "")));
-									
-									
+
 									// Apply jump strength value
 									horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));
-									
+
 									// Set the speed
-									horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
-									
-									
+									horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED)
+											.setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
+
 									// Apply max heath value
 									horse.setMaxHealth(Double.parseDouble(horseHealth[1]));
-									
+
 									// Set current health
 									horse.setHealth(Double.parseDouble(horseHealth[0]));
-									
 
 									// Apply domestication value
 									horse.setDomestication(Integer.parseInt(horseDom[0]));
@@ -114,18 +111,15 @@ public class InteractEvent implements Listener {
 									// Apply max domestication value
 									horse.setMaxDomestication(Integer.parseInt(horseDom[1]));
 
-									
 									// Apply age value
 									horse.setAge(Integer.parseInt(itemLore.get(9).replace("Age: ", "")));
 
 									// Set the owner
 									horse.setOwner((AnimalTamer) Main.getInstance().getServer().getPlayer((UUID.fromString(itemLore.get(10).replace("UUID: ", "")))));
 
-									
-									
 									// Give the horse a saddle
 									horse.getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
-									
+
 								}
 
 							}
