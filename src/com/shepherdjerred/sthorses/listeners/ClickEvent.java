@@ -98,7 +98,7 @@ public class ClickEvent implements Listener {
 								saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
 								saddleLore.add("Age: " + String.valueOf(horse.getAge()));
 								
-								if (horse.getOwner().getUniqueId() != null) {
+								if (horse.getOwner() != null) {
 									saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
 								} else {
 									saddleLore.add("UUID: " + player.getUniqueId().toString());
