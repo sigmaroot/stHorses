@@ -30,7 +30,7 @@ public class MainCommand implements CommandExecutor {
 
 							String prefix = Main.getInstance().getMessagesString("prefix.server");
 
-							sender.sendMessage(prefix + "§aConfig reloaded");
+							sender.sendMessage(prefix + "Â§aConfig reloaded");
 
 							return true;
 

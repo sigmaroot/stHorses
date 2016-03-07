@@ -4,8 +4,10 @@ package com.shepherdjerred.sthorses.listeners;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.server.v1_9_R1.GenericAttributes;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_9_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
@@ -20,9 +22,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.shepherdjerred.sthorses.Main;
-
-import net.minecraft.server.v1_8_R3.GenericAttributes;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 
 
 public class InteractEvent implements Listener {
