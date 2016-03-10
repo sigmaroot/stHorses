@@ -2,8 +2,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.shepherdjerred</groupId>
     <artifactId>stHorses</artifactId>
-    <version>1.1.4</version>
-    <name>stServerMessages</name>
+    <version>1.1.5</version>
+    <name>stHorses</name>
     <url>https://github.com/ShepherdJerred/stHorses</url>
 
     <organization>

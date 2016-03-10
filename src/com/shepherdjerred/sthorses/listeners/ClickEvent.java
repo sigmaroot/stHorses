@@ -91,7 +91,7 @@ public class ClickEvent implements Listener {
 								saddleLore.add("Style: " + horse.getStyle().toString());
 								saddleLore.add("Jump: " + String.valueOf(horse.getJumpStrength()));
 								saddleLore.add("Speed: " + String.valueOf(horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue()));
-								saddleLore.add("Health: " + String.valueOf(horse.getMaxHealth() + "/" + String.valueOf(horse.getHealth())));
+								saddleLore.add("Health: " + String.valueOf(horse.getHealth() + "/" + String.valueOf(horse.getMaxHealth())));
 								saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
 								saddleLore.add("Age: " + String.valueOf(horse.getAge()));
 
