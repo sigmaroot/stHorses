@@ -114,7 +114,7 @@ public class InteractEvent implements Listener {
 									horse.setAge(Integer.parseInt(itemLore.get(9).replace("Age: ", "")));
 
 									// Set the owner
-									horse.setOwner((AnimalTamer) Main.getInstance().getServer().getPlayer((UUID.fromString(itemLore.get(10).replace("UUID: ", "")))));
+									horse.setOwner((AnimalTamer) Main.getInstance().getServer().getOfflinePlayer((UUID.fromString(itemLore.get(10).replace("UUID: ", "")))));
 
 									// Give the horse a saddle
 									horse.getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
