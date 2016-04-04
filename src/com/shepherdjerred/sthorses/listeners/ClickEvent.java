@@ -47,6 +47,24 @@ public class ClickEvent implements Listener {
 							// Check that the slot was 0, and the item was a saddle
 							if (event.getSlot() == 0 && event.getCurrentItem().getType() == Material.SADDLE) {
 
+								// Check if the saddle has metadata
+								if (event.getCurrentItem().getItemMeta() != null) {
+
+									ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
+
+									// Check if the saddle has lore
+									if (itemMeta.getLore() != null) {
+
+										List<String> itemLore = itemMeta.getLore();
+
+										// Check that the lore is ours
+										if (itemLore.get(0).contains("Name:")) {
+											// This is a saddle with another horse stored in, cancel this!
+											return;
+										}
+									}
+								}
+
 								// Set the picked up item to air so that no saddle will drop
 								event.setCurrentItem(new ItemStack(Material.AIR, 1));
 
