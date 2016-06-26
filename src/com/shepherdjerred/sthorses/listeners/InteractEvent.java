@@ -4,10 +4,10 @@ package com.shepherdjerred.sthorses.listeners;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.server.v1_9_R2.GenericAttributes;
+import net.minecraft.server.v1_10_R1.GenericAttributes;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_9_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
