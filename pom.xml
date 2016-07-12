@@ -2,9 +2,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.shepherdjerred</groupId>
     <artifactId>stHorses</artifactId>
-    <version>1.1.6</version>
+    <version>2.0.0</version>
     <name>stHorses</name>
     <url>https://github.com/ShepherdJerred/stHorses</url>
+    <description>Easily store your horses</description>
 
     <organization>
         <name>Jerred Shepherd (RiotShielder)</name>
@@ -12,17 +13,16 @@
     </organization>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
-                <directory>resources</directory>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>plugin.yml</include>
                 </includes>
             </resource>
             <resource>
-                <directory>resources</directory>
+                <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <includes>
                     <include>config.yml</include>
@@ -65,14 +65,14 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.9.2-R0.1-SNAPSHOT</version>
+            <version>${spgiot.api.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.9.2-R0.1-SNAPSHOT</version>
+            <version>${spgiot.api.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -80,6 +80,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <spgiot.api.version>1.10.2-R0.1-SNAPSHOT</spgiot.api.version>
     </properties>
-    <description>Easily store your horses</description>
+
 </project>

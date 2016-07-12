@@ -26,7 +26,7 @@
  * either expressed or implied, of anybody else.
  */
 
-package com.shepherdjerred.sthorses;
+package com.shepherdjerred.sthorses.metrics;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
