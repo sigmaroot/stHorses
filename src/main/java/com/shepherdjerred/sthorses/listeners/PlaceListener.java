@@ -24,7 +24,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.shepherdjerred.sthorses.Main;
 
 
-public class InteractEvent implements Listener {
+public class PlaceListener implements Listener {
 
 	@EventHandler
 	public void onInteractEvent(PlayerInteractEvent event) {

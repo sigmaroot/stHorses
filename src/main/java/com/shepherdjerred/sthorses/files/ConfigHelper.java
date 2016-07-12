@@ -1,5 +1,5 @@
 
-package com.shepherdjerred.sthorses;
+package com.shepherdjerred.sthorses.files;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,22 +7,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.shepherdjerred.sthorses.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 
-public class Config {
+public class ConfigHelper {
 
 	// Provide Instances
-	private static Config instance;
+	private static ConfigHelper instance;
 
-	public Config() {
+	public ConfigHelper() {
 		instance = this;
 	}
 
-	public static Config getInstance() {
+	public static ConfigHelper getInstance() {
 		if (instance == null) {
-			instance = new Config();
+			instance = new ConfigHelper();
 		}
 		return instance;
 	}

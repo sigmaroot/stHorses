@@ -20,7 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 
-public class ClickEvent implements Listener {
+public class StoreListener implements Listener {
 
 	@EventHandler
 	public void onClickEvent(InventoryClickEvent event) {

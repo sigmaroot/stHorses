@@ -1,16 +1,15 @@
 
 package com.shepherdjerred.sthorses.commands;
 
+import com.shepherdjerred.sthorses.Main;
+import com.shepherdjerred.sthorses.files.ConfigHelper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.shepherdjerred.sthorses.Config;
-import com.shepherdjerred.sthorses.Main;
 
-
-public class MainCommand implements CommandExecutor {
+public class MainExecutor implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
@@ -26,7 +25,7 @@ public class MainCommand implements CommandExecutor {
 
 							// Reload the config, send a message
 							Main.getInstance().reloadConfig();
-							Config.getInstance().loadFiles();
+							ConfigHelper.getInstance().loadFiles();
 
 							String prefix = Main.getInstance().getMessagesString("prefix.server");
 
@@ -74,9 +73,9 @@ public class MainCommand implements CommandExecutor {
 
 						// Reload the config, send a message
 						Main.getInstance().reloadConfig();
-						Config.getInstance().loadFiles();
+						ConfigHelper.getInstance().loadFiles();
 
-						Main.getInstance().getLogger().info("Config reloaded");
+						Main.getInstance().getLogger().info("ConfigHelper reloaded");
 
 						return true;
 
