@@ -4,6 +4,8 @@ package com.shepherdjerred.sthorses.listeners;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import com.shepherdjerred.sthorses.Main;
 import net.minecraft.server.v1_10_R1.GenericAttributes;
 import net.minecraft.server.v1_10_R1.NBTTagCompound;
 import net.minecraft.server.v1_10_R1.NBTTagList;
@@ -22,138 +24,97 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class StoreListener implements Listener {
 
-	@EventHandler
-	public void onClickEvent(InventoryClickEvent event) {
+    @EventHandler
+    public void onClickEvent(InventoryClickEvent event) {
 
-		// Get the player who took the item
-		Player player = (Player) event.getWhoClicked();
+        Player player = (Player) event.getWhoClicked();
 
-		// Check if player is allowed to store a horse
-		if (event.getWhoClicked().hasPermission("stHorses.store")) {
+        if (event.getClickedInventory() != null
+                && event.getClickedInventory().getHolder() != null
+                && event.getClickedInventory().getHolder() instanceof Horse
+                && event.getSlot() == 0
+                && event.getCurrentItem().getType() == Material.SADDLE
+                && event.getCurrentItem().getItemMeta() != null) {
 
-			if (event.getClickedInventory() != null) {
+            if ((!Main.getInstance().getConfig().getBoolean("store.ShiftClickIgnored")
+                    && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                    || event.getAction() == InventoryAction.PICKUP_ALL) {
 
-				if (event.getClickedInventory().getHolder() != null) {
+                ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
 
-					// Check that the inventory belongs to a horse
-					if (event.getClickedInventory().getHolder() instanceof Horse) {
+                // Check if a horse is already stored in this saddle
+                if (itemMeta.getLore() != null)
+                    if (itemMeta.getLore().get(0).contains("Name:"))
+                        return;
 
-						// Check that an item was picked up, this allows shift left-clicking to take the saddle off without removing the horse
-						if (event.getAction() == InventoryAction.PICKUP_ALL) {
+                if (!event.getWhoClicked().hasPermission("stHorses.store"))
+                    return;
 
-							// Get the horse who the inventory belongs to
-							Horse horse = (Horse) event.getClickedInventory().getHolder();
+                // Set the picked up item to air so that no saddle will drop
+                event.setCurrentItem(new ItemStack(Material.AIR, 1));
 
-							// Check that the slot was 0, and the item was a saddle
-							if (event.getSlot() == 0 && event.getCurrentItem().getType() == Material.SADDLE) {
+                Horse horse = (Horse) event.getClickedInventory().getHolder();
 
-								// Check if the saddle has metadata
-								if (event.getCurrentItem().getItemMeta() != null) {
+                horse.getInventory().forEach(item -> {
+                    if (item != null) {
+                        horse.getWorld().dropItem(horse.getLocation(), item);
+                        item.setType(Material.AIR);
+                    }
+                });
 
-									ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
+                CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
+                ItemStack saddle = new ItemStack(Material.SADDLE, 1);
+                List<String> saddleLore = new ArrayList<>();
 
-									// Check if the saddle has lore
-									if (itemMeta.getLore() != null) {
+                if (horse.getCustomName() != null)
+                    saddleLore.add("Name: " + horse.getCustomName());
+                else
+                    saddleLore.add("Name: None");
 
-										List<String> itemLore = itemMeta.getLore();
+                if (horse.getOwner() != null)
+                    saddleLore.add("Owner: " + horse.getOwner().getName());
+                else
+                    saddleLore.add("Owner: " + player.getName());
 
-										// Check that the lore is ours
-										if (itemLore.get(0).contains("Name:")) {
-											// This is a saddle with another horse stored in, cancel this!
-											return;
-										}
-									}
-								}
+                saddleLore.add("Variant: " + horse.getVariant().toString());
+                saddleLore.add("Color: " + horse.getColor().toString());
+                saddleLore.add("Style: " + horse.getStyle().toString());
+                saddleLore.add("Jump: " + String.valueOf(horse.getJumpStrength()));
+                saddleLore.add("Speed: " + String.valueOf(horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue()));
+                saddleLore.add("Health: " + String.valueOf(horse.getHealth() + "/" + String.valueOf(horse.getMaxHealth())));
+                saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
+                saddleLore.add("Age: " + String.valueOf(horse.getAge()));
 
-								// Set the picked up item to air so that no saddle will drop
-								event.setCurrentItem(new ItemStack(Material.AIR, 1));
+                if (horse.getOwner() != null)
+                    saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
+                else
+                    saddleLore.add("UUID: " + player.getUniqueId().toString());
 
-								// Empty the horses inventory
-								for (ItemStack horseItem : horse.getInventory()) {
+                ItemMeta saddleMeta = saddle.getItemMeta();
 
-									if (horseItem != null) {
+                saddleMeta.setLore(saddleLore);
+                saddle.setItemMeta(saddleMeta);
 
-										horse.getWorld().dropItem(horse.getLocation(), horseItem);
+                player.getInventory().addItem(addGlow(saddle));
+                horse.remove();
 
-										horseItem.setType(Material.AIR);
-									}
+            }
+        }
+    }
 
-								}
-
-								// Get horse NMS
-								CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
-
-								// Create variables to store the horses data
-								ItemStack saddle = new ItemStack(Material.SADDLE, 1);
-								ItemMeta saddleMeta = saddle.getItemMeta();
-
-								// Create list to hold the lore
-								List<String> saddleLore = new ArrayList<String>();
-
-								// Add the horses data to the lore variable
-
-								if (horse.getCustomName() != null) {
-									saddleLore.add("Name: " + horse.getCustomName());
-								} else {
-									saddleLore.add("Name: None");
-								}
-
-								if (horse.getOwner() != null) {
-									saddleLore.add("Owner: " + horse.getOwner().getName());
-								} else {
-									saddleLore.add("Owner: " + player.getName());
-								}
-
-								saddleLore.add("Variant: " + horse.getVariant().toString());
-								saddleLore.add("Color: " + horse.getColor().toString());
-								saddleLore.add("Style: " + horse.getStyle().toString());
-								saddleLore.add("Jump: " + String.valueOf(horse.getJumpStrength()));
-								saddleLore.add("Speed: " + String.valueOf(horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue()));
-								saddleLore.add("Health: " + String.valueOf(horse.getHealth() + "/" + String.valueOf(horse.getMaxHealth())));
-								saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
-								saddleLore.add("Age: " + String.valueOf(horse.getAge()));
-
-								if (horse.getOwner() != null) {
-									saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
-								} else {
-									saddleLore.add("UUID: " + player.getUniqueId().toString());
-								}
-
-								// Set the lore
-								saddleMeta.setLore(saddleLore);
-
-								// Save the lore
-								saddle.setItemMeta(saddleMeta);
-
-								// Give a saddle
-								player.getInventory().addItem(addGlow(saddle));
-
-								// Remove the horse
-								horse.remove();
-
-							}
-
-						}
-					}
-				}
-			}
-		}
-
-	}
-
-	private ItemStack addGlow(ItemStack item) {
-		net.minecraft.server.v1_10_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
-		NBTTagCompound tag = null;
-		if (!nmsStack.hasTag()) {
-			tag = new NBTTagCompound();
-			nmsStack.setTag(tag);
-		}
-		if (tag == null)
-			tag = nmsStack.getTag();
-		NBTTagList ench = new NBTTagList();
-		tag.set("ench", ench);
-		nmsStack.setTag(tag);
-		return CraftItemStack.asCraftMirror(nmsStack);
-	}
+    private ItemStack addGlow(ItemStack item) {
+        net.minecraft.server.v1_10_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound tag = null;
+        if (!nmsStack.hasTag()) {
+            tag = new NBTTagCompound();
+            nmsStack.setTag(tag);
+        }
+        if (tag == null)
+            tag = nmsStack.getTag();
+        NBTTagList ench = new NBTTagList();
+        tag.set("ench", ench);
+        nmsStack.setTag(tag);
+        return CraftItemStack.asCraftMirror(nmsStack);
+    }
 
 }

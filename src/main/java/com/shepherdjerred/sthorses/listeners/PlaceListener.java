@@ -1,144 +1,119 @@
 
 package com.shepherdjerred.sthorses.listeners;
 
-import java.util.List;
-import java.util.UUID;
-
+import com.shepherdjerred.sthorses.Main;
+import com.shepherdjerred.sthorses.messages.MessageHelper;
 import net.minecraft.server.v1_10_R1.GenericAttributes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
-import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Horse.Color;
 import org.bukkit.entity.Horse.Style;
 import org.bukkit.entity.Horse.Variant;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.shepherdjerred.sthorses.Main;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 
 public class PlaceListener implements Listener {
 
-	@EventHandler
-	public void onInteractEvent(PlayerInteractEvent event) {
+    private static List<Material> interactables = Arrays.asList(Material.CHEST, Material.ENDER_CHEST, Material.BREWING_STAND, Material.HOPPER, Material.DISPENSER, Material.FURNACE, Material.BURNING_FURNACE, Material.TRAPPED_CHEST, Material.ENCHANTMENT_TABLE, Material.WORKBENCH);
 
-		// Check if a block was right-clicked
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+    @EventHandler
+    public void onInteractEvent(PlayerInteractEvent event) {
 
-			Player player = event.getPlayer();
+        if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK))
+            return;
 
-			// Check if player is allowed to spawn a horse
-			if (player.hasPermission("stHorses.spawn")) {
+        Player player = event.getPlayer();
 
-				// See if the player has an item in their hand
-				if (player.getItemInHand() != null) {
+        if (player.getInventory().getItemInMainHand() != null) {
 
-					ItemStack item = player.getItemInHand();
+            ItemStack item = player.getInventory().getItemInMainHand();
 
-					// Check if the player has a saddle in their hand
-					if (item.getType() == Material.SADDLE) {
+            if (item.getType() == Material.SADDLE && item.getItemMeta() != null) {
 
-						// Check if the saddle has metadata
-						if (item.getItemMeta() != null) {
+                ItemMeta itemMeta = item.getItemMeta();
 
-							ItemMeta itemMeta = item.getItemMeta();
+                if (itemMeta.getLore() != null) {
 
-							// Check if the saddle has lore
-							if (itemMeta.getLore() != null) {
+                    List<String> itemLore = itemMeta.getLore();
 
-								List<String> itemLore = itemMeta.getLore();
+                    // Check that the lore is ours
+                    if (itemLore.get(0).contains("Name:")
+                            && itemLore.get(1).contains("Owner:")
+                            && itemLore.get(2).contains("Variant:")
+                            && itemLore.get(3).contains("Color:")
+                            && itemLore.get(4).contains("Style:")
+                            && itemLore.get(5).contains("Jump:")
+                            && itemLore.get(6).contains("Speed:")
+                            && itemLore.get(7).contains("Health:")
+                            && itemLore.get(8).contains("Domestication:")
+                            && itemLore.get(9).contains("Age:")
+                            && itemLore.get(10).contains("UUID:")) {
 
-								// Check that the lore is ours
-								if (itemLore.get(0).contains("Name:") && itemLore.get(1).contains("Owner:") && itemLore.get(2).contains("Variant:")
-										&& itemLore.get(3).contains("Color:") && itemLore.get(4).contains("Style:") && itemLore.get(5).contains("Jump:")
-										&& itemLore.get(6).contains("Speed:") && itemLore.get(7).contains("Health:") && itemLore.get(8).contains("Domestication:")
-										&& itemLore.get(9).contains("Age") && itemLore.get(10).contains("UUID:")) {
+                        if (!player.hasPermission("stHorses.spawn")) {
+                            player.sendMessage(MessageHelper.getMessagePrefix() + MessageHelper.colorMessagesString("place.noPermisson"));
+                            return;
+                        }
 
-									// Remove the saddle
-									player.getInventory().removeItem(item);
+                        player.getInventory().removeItem(item);
 
-									// Create a new location for the horse to spawn at
-									Location location = new Location(event.getClickedBlock().getWorld(), event.getClickedBlock().getX(), event.getClickedBlock().getY() + 1,
-											event.getClickedBlock().getZ());
+                        Location location = new Location(event.getClickedBlock().getWorld(),
+                                event.getClickedBlock().getX(),
+                                event.getClickedBlock().getY() + 1,
+                                event.getClickedBlock().getZ());
 
-									// Spawn a horse
-									Horse horse = event.getClickedBlock().getWorld().spawn(location, Horse.class);
+                        Horse horse = event.getClickedBlock().getWorld().spawn(location, Horse.class);
 
-									// Get horse NMS
-									CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
+                        if (Main.getInstance().getConfig().getBoolean("store.safeSpawning")
+                                && horse.getLastDamageCause().getCause() != EntityDamageEvent.DamageCause.SUFFOCATION) {
+                            player.sendMessage(MessageHelper.getMessagePrefix() + MessageHelper.colorMessagesString("store.cantSpawnThere"));
+                            return;
+                        }
 
-									String[] horseHealth = itemLore.get(7).replace("Health: ", "").split("/");
-									String[] horseDom = itemLore.get(8).replace("Domestication: ", "").split("/");
+                        if (Main.getInstance().getConfig().getBoolean("store.notOnInteractable")
+                                && interactables.contains(event.getClickedBlock().getType())) {
+                            player.sendMessage(MessageHelper.getMessagePrefix() + MessageHelper.colorMessagesString("store.cantSpawnThere"));
+                            return;
+                        }
 
-									// Apply the horses name
-									if ((!itemLore.get(0).equals("Name: None"))) {
-										horse.setCustomName(itemLore.get(0).replace("Name: ", ""));
-									}
+                        CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
+                        String[] horseHealth = itemLore.get(7).replace("Health: ", "").split("/");
+                        String[] horseDom = itemLore.get(8).replace("Domestication: ", "").split("/");
 
-									// Apply variant value
-									horse.setVariant(Variant.valueOf(itemLore.get(2).replace("Variant: ", "")));
+                        if ((!itemLore.get(0).equals("Name: None")))
+                            horse.setCustomName(itemLore.get(0).replace("Name: ", ""));
 
-									// Apply color value
-									horse.setColor(Color.valueOf(itemLore.get(3).replace("Color: ", "")));
+                        horse.setVariant(Variant.valueOf(itemLore.get(2).replace("Variant: ", "")));
+                        horse.setColor(Color.valueOf(itemLore.get(3).replace("Color: ", "")));
+                        horse.setStyle(Style.valueOf(itemLore.get(4).replace("Style: ", "")));
+                        horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));
+                        horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED)
+                                .setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
+                        horse.setMaxHealth(Double.parseDouble(horseHealth[1]));
+                        horse.setHealth(Double.parseDouble(horseHealth[0]));
+                        horse.setDomestication(Integer.parseInt(horseDom[0]));
+                        horse.setMaxDomestication(Integer.parseInt(horseDom[1]));
+                        horse.setAge(Integer.parseInt(itemLore.get(9).replace("Age: ", "")));
+                        horse.setOwner(Main.getInstance().getServer().getOfflinePlayer((UUID.fromString(itemLore.get(10).replace("UUID: ", "")))));
 
-									// Apply style value
-									horse.setStyle(Style.valueOf(itemLore.get(4).replace("Style: ", "")));
+                        horse.getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
 
-									// Apply jump strength value
-									horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));
-
-									// Set the speed
-									horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED)
-											.setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
-
-									// Apply max heath value
-									horse.setMaxHealth(Double.parseDouble(horseHealth[1]));
-
-									// Set current health
-									horse.setHealth(Double.parseDouble(horseHealth[0]));
-
-									// Apply domestication value
-									horse.setDomestication(Integer.parseInt(horseDom[0]));
-
-									// Apply max domestication value
-									horse.setMaxDomestication(Integer.parseInt(horseDom[1]));
-
-									// Apply age value
-									horse.setAge(Integer.parseInt(itemLore.get(9).replace("Age: ", "")));
-
-									// Set the owner
-									horse.setOwner((AnimalTamer) Main.getInstance().getServer().getOfflinePlayer((UUID.fromString(itemLore.get(10).replace("UUID: ", "")))));
-
-									// Give the horse a saddle
-									horse.getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
-
-								}
-
-							}
-
-						}
-					}
-				}
-
-			} else {
-				
-				// Send an error message
-				String prefix = Main.getInstance().getMessagesString("prefix.server");
-				String noPerms = Main.getInstance().getMessagesString("messages.no-perms");
-
-				player.sendMessage(prefix + noPerms);
-				
-			}
-
-		}
-
-	}
-
+                    }
+                }
+            }
+        }
+    }
 }
