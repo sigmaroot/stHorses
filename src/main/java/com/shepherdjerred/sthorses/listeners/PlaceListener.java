@@ -68,6 +68,9 @@ public class PlaceListener implements Listener {
                             return;
                         }
 
+                        if (event.isCancelled())
+                            return;
+
                         player.getInventory().removeItem(item);
 
                         Location location = new Location(event.getClickedBlock().getWorld(),
