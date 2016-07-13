@@ -1,15 +1,14 @@
 
 package com.shepherdjerred.sthorses;
 
-import java.io.IOException;
-
+import com.shepherdjerred.sthorses.commands.MainExecutor;
 import com.shepherdjerred.sthorses.files.ConfigHelper;
 import com.shepherdjerred.sthorses.listeners.PlaceListener;
+import com.shepherdjerred.sthorses.listeners.StoreListener;
 import com.shepherdjerred.sthorses.metrics.MetricsLite;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.shepherdjerred.sthorses.commands.MainExecutor;
-import com.shepherdjerred.sthorses.listeners.StoreListener;
+import java.io.IOException;
 
 
 public class Main extends JavaPlugin {
@@ -28,8 +27,7 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 
-		this.saveDefaultConfig();
-		ConfigHelper.getInstance().loadFiles();
+		ConfigHelper.loadConfigs();
 
 		// Register events
 		getServer().getPluginManager().registerEvents(new StoreListener(), this);

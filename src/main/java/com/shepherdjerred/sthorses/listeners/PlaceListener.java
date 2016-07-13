@@ -1,4 +1,3 @@
-
 package com.shepherdjerred.sthorses.listeners;
 
 import com.shepherdjerred.sthorses.Main;
@@ -13,14 +12,13 @@ import org.bukkit.entity.Horse.Style;
 import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +28,7 @@ public class PlaceListener implements Listener {
 
     private static List<Material> interactables = Arrays.asList(Material.CHEST, Material.ENDER_CHEST, Material.BREWING_STAND, Material.HOPPER, Material.DISPENSER, Material.FURNACE, Material.BURNING_FURNACE, Material.TRAPPED_CHEST, Material.ENCHANTMENT_TABLE, Material.WORKBENCH);
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInteractEvent(PlayerInteractEvent event) {
 
         if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK))
@@ -68,10 +66,10 @@ public class PlaceListener implements Listener {
                             return;
                         }
 
-                        if (event.isCancelled())
-                            return;
 
-                        player.getInventory().removeItem(item);
+                        if (Main.getInstance().getConfig().getBoolean("store.notOnInteractable")
+                                && interactables.contains(event.getClickedBlock().getType()))
+                            return;
 
                         Location location = new Location(event.getClickedBlock().getWorld(),
                                 event.getClickedBlock().getX(),
@@ -81,16 +79,15 @@ public class PlaceListener implements Listener {
                         Horse horse = event.getClickedBlock().getWorld().spawn(location, Horse.class);
 
                         if (Main.getInstance().getConfig().getBoolean("store.safeSpawning")
-                                && horse.getLastDamageCause().getCause() != EntityDamageEvent.DamageCause.SUFFOCATION) {
+                                && horse.getEyeLocation().getBlock().getType() != Material.AIR
+                                && horse.getLocation().getBlock().getType() != Material.AIR) {
+                            horse.remove();
+                            event.setCancelled(true);
                             player.sendMessage(MessageHelper.getMessagePrefix() + MessageHelper.colorMessagesString("store.cantSpawnThere"));
                             return;
                         }
 
-                        if (Main.getInstance().getConfig().getBoolean("store.notOnInteractable")
-                                && interactables.contains(event.getClickedBlock().getType())) {
-                            player.sendMessage(MessageHelper.getMessagePrefix() + MessageHelper.colorMessagesString("store.cantSpawnThere"));
-                            return;
-                        }
+                        player.getInventory().removeItem(item);
 
                         CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
                         String[] horseHealth = itemLore.get(7).replace("Health: ", "").split("/");

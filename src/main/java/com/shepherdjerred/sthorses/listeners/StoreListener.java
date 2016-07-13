@@ -1,10 +1,6 @@
 
 package com.shepherdjerred.sthorses.listeners;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 import com.shepherdjerred.sthorses.Main;
 import net.minecraft.server.v1_10_R1.GenericAttributes;
 import net.minecraft.server.v1_10_R1.NBTTagCompound;
@@ -21,6 +17,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class StoreListener implements Listener {
 
@@ -36,7 +35,7 @@ public class StoreListener implements Listener {
                 && event.getCurrentItem().getType() == Material.SADDLE
                 && event.getCurrentItem().getItemMeta() != null) {
 
-            if ((!Main.getInstance().getConfig().getBoolean("store.ShiftClickIgnored")
+            if ((Main.getInstance().getConfig().getBoolean("store.ShiftClickIgnored")
                     && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
                     || event.getAction() == InventoryAction.PICKUP_ALL) {
 
