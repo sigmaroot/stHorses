@@ -1,6 +1,5 @@
 # The prefix used for plugin messages
-prefix:
-    server: "&8[&3stHorses&8]: &7"
+prefix: "&8[&3stHorses&8]: &7"
 
 # Various messages used by the plugin
 messages:
