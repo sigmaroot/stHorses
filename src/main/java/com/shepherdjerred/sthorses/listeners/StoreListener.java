@@ -54,12 +54,12 @@ public class StoreListener implements Listener {
 
                 Horse horse = (Horse) event.getClickedInventory().getHolder();
 
-                horse.getInventory().forEach(item -> {
+                for (ItemStack item : horse.getInventory()) {
                     if (item != null) {
                         horse.getWorld().dropItem(horse.getLocation(), item);
                         item.setType(Material.AIR);
                     }
-                });
+                }
 
                 CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
                 ItemStack saddle = new ItemStack(Material.SADDLE, 1);
@@ -94,7 +94,13 @@ public class StoreListener implements Listener {
                 saddleMeta.setLore(saddleLore);
                 saddle.setItemMeta(saddleMeta);
 
-                player.getInventory().addItem(addGlow(saddle));
+                // Check for full inventory and drop item
+                if (player.getInventory().firstEmpty() == -1) {
+                    horse.getWorld().dropItem(horse.getLocation(), addGlow(saddle));
+                } else {
+                    player.getInventory().addItem(addGlow(saddle));
+                }
+                
                 horse.remove();
 
             }
