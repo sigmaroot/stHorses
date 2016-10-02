@@ -7,3 +7,5 @@ install:
 script:
     - java -jar BuildTools.jar
     - maven package
+notifications:
+    email: false
