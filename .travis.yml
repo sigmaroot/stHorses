@@ -1,0 +1,15 @@
+language: java
+jdk:
+  - oraclejdk8
+install:
+- wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+script:
+- java -jar BuildTools.jar
+- mvn package
+deploy:
+  provider: releases
+  api_key:
+    secure: vftE8MRbCtQkoDuvkGmX125xNa1b2hhYiouLAmTYWqMSRgIjqzu45dYWgONbmIs6DrBA1A/0x68107VTex2xwBlbD2qzNqcWVmX7kOlkJFteLGNrnzAyjmaY4LMWskOQwaaKJg8ErFw7y7XYYeA52pNQKP93sJs7zhPn1bWCkamk8pWLoooVDlEugfKeZZzZe/MrquvPEZtVq744nirqyCLBhwXDdz9vX9+so1a9y/pro1e9SOQYgCMoSfdMkYbRj0DusT+ZM9mBw0g7hj4WDRridZdGjTc++yDubE5eFeeMvzk+ZsLEOf6bGYfNZsC7AtwQg6GeH04N4QPVItYVzVn/2NBc5TZFyMJHHdm+R2uDVURtoulv0bgKMc96KWO787Kbc81dIsc8k2XYdIV4hwTHmglc//w4wTEiza2B0L9AeXlAUp3K2BkaUJmH+rx2fMRkydWRp0e9cHNoeePNQOC5snWFkH4Iy9whHx5CStu5yAUuwlIwTOGyzkqbUYK2pqDKQ/LhPxQv+WnBTaEx3BBUYph8ak0SBHOXms0OX+NKm1Cl57GnjY0TPCHlGNuBDSr58wXiR+HkX84MCeXBrg5xqV92SIhXmlzaGpvAncx5zUfr2SASJRctQNt/QhxT+4HtkKjUgyWS6XJgzlzk9332KLpiqQyE0IgppIfqJ4w=
+  file: stHorses-*.jar
+  on:
+    repo: ShepherdJerred/stHorses
