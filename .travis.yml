@@ -6,14 +6,3 @@ install:
 - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
 script:
 - java -jar BuildTools.jar
-before_deploy:
-- mvn package
-deploy:
-  skip_cleanup: true
-  provider: releases
-  api_key:
-    secure: mVY37Hk2a4qDj4uQGHB0qOodZ0oUUQBD85CcK0Ntzz9lRM+GNpbHHP5FOANNXpELWPSDw9nstgSkjrgSIt38YBGYKvFH6qHpiXFLEcAeZeYjIk5Q4GbKztn31OsZXmv01idCnStOouLFcDmjfATThAS6EU7q1n6nlK9wYrzJCjeRQs4WcB0x14CbJOVXEZL6jJZOtxBDC4x1WSbQiLVRNtI57FDoVVyhvGWKMz0bavID7LbLRW311psLRe+hViXVJG2w96awvSf1ZUCRFJzlNBPGCGND3hJKTTERt0s6bvjZdtuvgGM+cCn4KBbQkyRqCAPtlylmdke8lZo6BAUOZr2e3JZNO6uwRXYi9HHyOG2r2+Ie2ETmQ3eO1OXQ9DBCv5dxTo9UnkwfMD28Z5dRzNEHUEeR0PMLb4qLdNlzLknuQes+nNZJr6oML7nwj4ZbTFd/XHmuq2aVOsk8uftN79pgNHceGo57kbY6dkIz4g8U8bcbeSG0hM52AgzdPmcwlcAI+SbxuW2wDpXVQW3w7G2A7ULybo42NNBza57m7zU73ncwLZsEL//Wiql0QkNqaO1MVIm6Kwe1n86t8hpAFtW71ChIUG7O6zmgkG6aZ1uYpwyRkQu7MvHvmp9HczcyDaPG4E1hFv4tgWlk8KADSKKod/yXFSfBEUobcpugfh8=
-  file: "/home/travis/build/ShepherdJerred/stHorses/target/stHorses-2.0.0.jar"
-  on:
-    tags: true
-    repo: ShepherdJerred/stHorses
