@@ -2,10 +2,10 @@ package com.shepherdjerred.sthorses.listeners;
 
 import com.shepherdjerred.sthorses.Main;
 import com.shepherdjerred.sthorses.messages.MessageHelper;
-import net.minecraft.server.v1_10_R1.GenericAttributes;
+import net.minecraft.server.v1_11_R1.GenericAttributes;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Horse.Color;
 import org.bukkit.entity.Horse.Style;
