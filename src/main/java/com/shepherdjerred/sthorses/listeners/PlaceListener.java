@@ -9,7 +9,6 @@ import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Horse.Color;
 import org.bukkit.entity.Horse.Style;
-import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -96,7 +95,7 @@ public class PlaceListener implements Listener {
                         if ((!itemLore.get(0).equals("Name: None")))
                             horse.setCustomName(itemLore.get(0).replace("Name: ", ""));
 
-                        horse.setVariant(Variant.valueOf(itemLore.get(2).replace("Variant: ", "")));
+                        horse.setStyle(Style.valueOf(itemLore.get(2).replace("Style: ", "")));
                         horse.setColor(Color.valueOf(itemLore.get(3).replace("Color: ", "")));
                         horse.setStyle(Style.valueOf(itemLore.get(4).replace("Style: ", "")));
                         horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));

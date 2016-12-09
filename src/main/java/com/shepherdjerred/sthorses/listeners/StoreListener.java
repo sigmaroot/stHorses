@@ -75,7 +75,7 @@ public class StoreListener implements Listener {
                 else
                     saddleLore.add("Owner: " + player.getName());
 
-                saddleLore.add("Variant: " + horse.getVariant().toString());
+                saddleLore.add("Style: " + horse.getStyle().toString());
                 saddleLore.add("Color: " + horse.getColor().toString());
                 saddleLore.add("Style: " + horse.getStyle().toString());
                 saddleLore.add("Jump: " + String.valueOf(horse.getJumpStrength()));
