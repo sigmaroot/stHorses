@@ -1,4 +1,4 @@
 # stHorses
-[![Build Status](https://travis-ci.org/ShepherdJerred/stHorses.svg?branch=master)](https://travis-ci.org/ShepherdJerred/stHorses)
+[![Build Status](https://ts-mc.net/jenkins/buildStatus/icon?job=sthorses)](https://ts-mc.net/jenkins/job/sthorses/)
 
 Easily store your horses
