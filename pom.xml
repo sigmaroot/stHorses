@@ -11,6 +11,19 @@
         <name>Jerred Shepherd (RiotShielder)</name>
         <url>http://shepherdjerred.com/</url>
     </organization>
+    
+    <distributionManagement>
+        <repository>
+            <id>thestorm-releases</id>
+            <name>Releases</name>
+            <url>http://ts-mc.net:8085/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>thestorm-snapshots</id>
+            <name>Snapshots</name>
+            <url>http://ts-mc.net:8085/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <resources>
