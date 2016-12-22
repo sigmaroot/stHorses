@@ -5,12 +5,10 @@ import com.shepherdjerred.sthorses.messages.MessageHelper;
 import net.minecraft.server.v1_11_R1.GenericAttributes;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Horse.Color;
 import org.bukkit.entity.Horse.Style;
-import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -97,13 +95,13 @@ public class PlaceListener implements Listener {
                         if ((!itemLore.get(0).equals("Name: None")))
                             horse.setCustomName(itemLore.get(0).replace("Name: ", ""));
 
-                        horse.setVariant(Variant.valueOf(itemLore.get(2).replace("Variant: ", "")));
+                        horse.setStyle(Style.valueOf(itemLore.get(2).replace("Style: ", "")));
                         horse.setColor(Color.valueOf(itemLore.get(3).replace("Color: ", "")));
                         horse.setStyle(Style.valueOf(itemLore.get(4).replace("Style: ", "")));
                         horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));
                         horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED)
                                 .setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
-                        horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(Double.parseDouble(horseHealth[1]));
+                        horse.setMaxHealth(Double.parseDouble(horseHealth[1]));
                         horse.setHealth(Double.parseDouble(horseHealth[0]));
                         horse.setDomestication(Integer.parseInt(horseDom[0]));
                         horse.setMaxDomestication(Integer.parseInt(horseDom[1]));
