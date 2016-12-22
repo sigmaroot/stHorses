@@ -7,7 +7,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemUtils {
 
-    private static void addGlow(ItemStack item) {
+    public static void addGlow(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         meta.addEnchant(Enchantment.DURABILITY, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
