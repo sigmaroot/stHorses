@@ -10,7 +10,4 @@ messages:
 
 place:
     noPermission: "&cYou don't have permission to place stored horses!"
-
-store:
-    noPermission: "&cYou don't have permission to store horses"
     cantSpawnThere: "&cYou can't spawn your horse there"
