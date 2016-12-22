@@ -1,15 +1,9 @@
-
 package com.shepherdjerred.sthorses.listeners;
 
 import com.shepherdjerred.sthorses.Main;
-import net.minecraft.server.v1_10_R1.GenericAttributes;
-import net.minecraft.server.v1_10_R1.NBTTagCompound;
-import net.minecraft.server.v1_10_R1.NBTTagList;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
@@ -18,108 +12,174 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-
 public class StoreListener implements Listener {
+
+    private final List<InventoryAction> ALLOWED_ACTIONS = Arrays.asList(
+            InventoryAction.PICKUP_ALL
+    );
 
     @EventHandler
     public void onClickEvent(InventoryClickEvent event) {
 
         Player player = (Player) event.getWhoClicked();
 
-        if (event.getClickedInventory() != null
-                && event.getClickedInventory().getHolder() != null
-                && event.getClickedInventory().getHolder() instanceof Horse
-                && event.getSlot() == 0
-                && event.getCurrentItem().getType() == Material.SADDLE
-                && event.getCurrentItem().getItemMeta() != null) {
+        // Check permission
+        if (!event.getWhoClicked().hasPermission("stHorses.store")) {
+            return;
+        }
 
-            if ((Main.getInstance().getConfig().getBoolean("store.ShiftClickIgnored")
-                    && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
-                    || event.getAction() == InventoryAction.PICKUP_ALL) {
+        // Check that the inventory belongs to a horse
+        if (!(event.getClickedInventory().getHolder() instanceof AbstractHorse)) {
+            return;
+        }
 
-                ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
+        // Be sure we're clicking on the saddle slot, and that a saddle was clicked
+        if (event.getSlot() != 0 || event.getCurrentItem().getType() != Material.SADDLE) {
+            return;
+        }
 
-                // Check if a horse is already stored in this saddle
-                if (itemMeta.getLore() != null)
-                    if (itemMeta.getLore().get(0).contains("Name:"))
-                        return;
-
-                if (!event.getWhoClicked().hasPermission("stHorses.store"))
-                    return;
-
-                // Set the picked up item to air so that no saddle will drop
-                event.setCurrentItem(new ItemStack(Material.AIR, 1));
-
-                Horse horse = (Horse) event.getClickedInventory().getHolder();
-
-                for (ItemStack item : horse.getInventory()) {
-                    if (item != null) {
-                        horse.getWorld().dropItem(horse.getLocation(), item);
-                        item.setType(Material.AIR);
-                    }
-                }
-
-                CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
-                ItemStack saddle = new ItemStack(Material.SADDLE, 1);
-                List<String> saddleLore = new ArrayList<>();
-
-                if (horse.getCustomName() != null)
-                    saddleLore.add("Name: " + horse.getCustomName());
-                else
-                    saddleLore.add("Name: None");
-
-                if (horse.getOwner() != null)
-                    saddleLore.add("Owner: " + horse.getOwner().getName());
-                else
-                    saddleLore.add("Owner: " + player.getName());
-
-                saddleLore.add("Variant: " + horse.getVariant().toString());
-                saddleLore.add("Color: " + horse.getColor().toString());
-                saddleLore.add("Style: " + horse.getStyle().toString());
-                saddleLore.add("Jump: " + String.valueOf(horse.getJumpStrength()));
-                saddleLore.add("Speed: " + String.valueOf(horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue()));
-                saddleLore.add("Health: " + String.valueOf(horse.getHealth() + "/" + String.valueOf(horse.getMaxHealth())));
-                saddleLore.add("Domestication: " + String.valueOf(horse.getDomestication() + "/" + String.valueOf(horse.getMaxDomestication())));
-                saddleLore.add("Age: " + String.valueOf(horse.getAge()));
-
-                if (horse.getOwner() != null)
-                    saddleLore.add("UUID: " + horse.getOwner().getUniqueId().toString());
-                else
-                    saddleLore.add("UUID: " + player.getUniqueId().toString());
-
-                ItemMeta saddleMeta = saddle.getItemMeta();
-
-                saddleMeta.setLore(saddleLore);
-                saddle.setItemMeta(saddleMeta);
-
-                // Check for full inventory and drop item
-                if (player.getInventory().firstEmpty() == -1) {
-                    horse.getWorld().dropItem(horse.getLocation(), addGlow(saddle));
-                } else {
-                    player.getInventory().addItem(addGlow(saddle));
-                }
-                
-                horse.remove();
-
+        // Don't continue if we're ignoring shift-clicks
+        if (Main.getInstance().getConfig().getBoolean("store.ShiftClickIgnored")) {
+            if (!ALLOWED_ACTIONS.contains(event.getAction())) {
+                return;
             }
         }
+
+        // Don't continue if the clicked saddle has lore
+        if (event.getCurrentItem().getItemMeta().hasLore()) {
+            return;
+        }
+
+        // Set the clicked saddle to air, so that a saddle won't drop
+        event.getCurrentItem().setType(Material.AIR);
+
+        AbstractHorse abstractHorse = (AbstractHorse) event.getClickedInventory().getHolder();
+
+        // Drop the horses inventory
+        abstractHorse.getInventory().forEach(item -> {
+            if (item != null) {
+                abstractHorse.getWorld().dropItem(abstractHorse.getLocation(), item);
+                item.setType(Material.AIR);
+            }
+        });
+
+        ItemStack saddle = new ItemStack(Material.SADDLE, 1);
+        ItemMeta saddleMeta = saddle.getItemMeta();
+        List<String> lore = createAbstractHorseLore(abstractHorse);
+
+        if (abstractHorse instanceof Horse) {
+            lore.addAll(createHorseLore((Horse) abstractHorse));
+        } else if (abstractHorse instanceof Llama) {
+            lore.addAll(createLlamaLore((Llama) abstractHorse));
+        } else if (abstractHorse instanceof ChestedHorse) {
+            lore.addAll(createChestedHorseLore((ChestedHorse) abstractHorse));
+        } else if (abstractHorse instanceof ZombieHorse) {
+            lore.addAll(createZombieHorseLore((ZombieHorse) abstractHorse));
+        } else if (abstractHorse instanceof SkeletonHorse) {
+            lore.addAll(createSkeletonHorseLore((SkeletonHorse) abstractHorse));
+        } else {
+            lore.add("ERROR CREATING LORE");
+        }
+
+        saddleMeta.setLore(lore);
+
+        // Check for full inventory; Drop item or give item to player
+        if (player.getInventory().firstEmpty() == -1) {
+            player.getWorld().dropItem(player.getLocation(), saddle);
+        } else {
+            player.getInventory().addItem(saddle);
+        }
+
+        // Remove the horse
+        abstractHorse.remove();
     }
 
-    private ItemStack addGlow(ItemStack item) {
-        net.minecraft.server.v1_10_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tag = null;
-        if (!nmsStack.hasTag()) {
-            tag = new NBTTagCompound();
-            nmsStack.setTag(tag);
+    private List<String> createAbstractHorseLore(AbstractHorse abstractHorse) {
+        List<String> lore = new ArrayList<>();
+
+        String name = "Name: ";
+        String owner = "Owner: ";
+        String ownerUuid = "Owner UUID: ";
+
+        if (abstractHorse.getCustomName() != null) {
+            name.concat(abstractHorse.getCustomName());
+        } else {
+            name.concat("None");
         }
-        if (tag == null)
-            tag = nmsStack.getTag();
-        NBTTagList ench = new NBTTagList();
-        tag.set("ench", ench);
-        nmsStack.setTag(tag);
-        return CraftItemStack.asCraftMirror(nmsStack);
+
+        if (abstractHorse.getOwner() != null) {
+            owner.concat(String.valueOf(abstractHorse.getOwner().getName()));
+            ownerUuid.concat(String.valueOf(abstractHorse.getOwner().getUniqueId()));
+        } else {
+            owner.concat("None");
+            ownerUuid.concat("None");
+        }
+
+        String jump = "Jump: " + String.valueOf(abstractHorse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).getValue());
+        String speed = "Speed: " + String.valueOf(abstractHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue());
+        String domestication = "Domestication: " + String.valueOf(abstractHorse.getDomestication() + "/" + String.valueOf(abstractHorse.getMaxDomestication()));
+        String health = "Health: " + String.valueOf(abstractHorse.getHealth()) + "/" + String.valueOf(abstractHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH));
+        String age = "Age: " + String.valueOf(abstractHorse.getAge());
+
+        lore.addAll(Arrays.asList(
+                name, owner, ownerUuid, jump, speed, domestication, health, age
+        ));
+
+        return lore;
+    }
+
+    private List<String> createHorseLore(Horse horse) {
+        List<String> lore = new ArrayList<>();
+
+        lore.add("Variant: Horse");
+        lore.add("Color: " + horse.getColor().toString());
+        lore.add("Style: " + horse.getStyle().toString());
+
+        return lore;
+    }
+
+    private List<String> createLlamaLore(Llama llama) {
+        List<String> lore = new ArrayList<>();
+
+        lore.add("Variant: Llama");
+        lore.add("Color: " + llama.getColor().toString());
+
+        return lore;
+    }
+
+    private List<String> createChestedHorseLore(ChestedHorse chestedHorse) {
+        List<String> lore = new ArrayList<>();
+
+        String variant = "Variant: ";
+
+        if (chestedHorse instanceof Donkey) {
+            variant.concat("Donkey");
+        } else if (chestedHorse instanceof Mule) {
+            variant.concat("Mule");
+        } else {
+            variant.concat("ERROR CREATING LORE");
+        }
+
+        return lore;
+    }
+
+    private List<String> createSkeletonHorseLore(SkeletonHorse skeletonHorse) {
+        List<String> lore = new ArrayList<>();
+
+        lore.add("Variant: Skeleton");
+
+        return lore;
+    }
+
+    private List<String> createZombieHorseLore(ZombieHorse zombieHorse) {
+        List<String> lore = new ArrayList<>();
+
+        lore.add("Variant: Zombie");
+
+        return lore;
     }
 
 }

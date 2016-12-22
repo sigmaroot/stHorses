@@ -1,7 +1,6 @@
 
 package com.shepherdjerred.sthorses;
 
-import com.shepherdjerred.sthorses.commands.MainExecutor;
 import com.shepherdjerred.sthorses.files.ConfigHelper;
 import com.shepherdjerred.sthorses.listeners.PlaceListener;
 import com.shepherdjerred.sthorses.listeners.StoreListener;
@@ -32,9 +31,6 @@ public class Main extends JavaPlugin {
 		// Register events
 		getServer().getPluginManager().registerEvents(new StoreListener(), this);
 		getServer().getPluginManager().registerEvents(new PlaceListener(), this);
-
-		// Register Commands
-		this.getCommand("sth").setExecutor(new MainExecutor());
 
 		// Setup Metrics
 		try {
