@@ -130,20 +130,25 @@ public class StoreListener implements Listener {
 
         double jumpValue = abstractHorse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).getValue();
 
-        // Formula from http://minecraft.gamepedia.com/Horse#StatisticsVZV
+        // Formula from http://minecraft.gamepedia.com/Horse#Statistics
         double jumpValueInBlocks = -0.1817584952 * Math.pow(jumpValue, 3) + 3.689713992 * Math.pow(jumpValue, 2) + 2.128599134 * jumpValue - 0.343930367;
         jumpValueInBlocks = (double) Math.round(jumpValueInBlocks * 1d) / 1d;
 
-        String jump = "Jump: ~"  + String.valueOf(jumpValueInBlocks) + " blocks";
-        String realJump = "Real Jump: " + String.valueOf(jumpValue);
-        String speed = "Speed: " + String.valueOf(abstractHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue());
-        String domestication = "Domestication: " + String.valueOf(abstractHorse.getDomestication() + "/" + String.valueOf(abstractHorse.getMaxDomestication()));
-        String health = "Health: " + String.valueOf(abstractHorse.getHealth()) + "/" + String.valueOf(abstractHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-        String age = "Age: " + String.valueOf(abstractHorse.getAge());
+        double speedValue = abstractHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue();
+        double speedValueInBlocks = 43.178 * speedValue - 0.0214;
+        speedValueInBlocks = (double) Math.round(speedValueInBlocks * 1d) / 1d;
+
         String variant = "Variant: " + abstractHorse.getClass().getSimpleName().replace("Craft", "");
+        String jump = "Jump: ~"  + String.valueOf(jumpValueInBlocks) + " blocks";
+        String speed = "Speed: ~" + String.valueOf(speedValueInBlocks) + " blocks";
+        String health = "Health: " + String.valueOf(abstractHorse.getHealth()) + "/" + String.valueOf(abstractHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        String domestication = "Domestication: " + String.valueOf(abstractHorse.getDomestication() + "/" + String.valueOf(abstractHorse.getMaxDomestication()));
+        String age = "Age: " + String.valueOf(abstractHorse.getAge());
+        String realJump = "Real Jump: " + String.valueOf(jumpValue);
+        String realSpeed = "Real Speed: " + String.valueOf(speedValue);
 
         lore.addAll(Arrays.asList(
-                name, owner, ownerUuid, jump, realJump, speed, domestication, health, age, variant
+                name, owner, variant, jump, speed, health, domestication, age, ownerUuid, realJump, realSpeed
         ));
 
         return lore;
