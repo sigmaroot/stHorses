@@ -4,7 +4,10 @@ import com.shepherdjerred.sthorses.Main;
 import com.shepherdjerred.sthorses.util.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Llama;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
@@ -28,7 +31,7 @@ public class StoreListener implements Listener {
         Player player = (Player) event.getWhoClicked();
 
         // Check permission
-        if (!event.getWhoClicked().hasPermission("stHorses.store")) {
+        if (!player.hasPermission("stHorses.store")) {
             return;
         }
 
@@ -43,7 +46,7 @@ public class StoreListener implements Listener {
         }
 
         // Be sure we're clicking on the saddle slot, and that a saddle was clicked
-        if (event.getSlot() != 0 || event.getCurrentItem().getType() != Material.SADDLE) {
+        if (event.getSlot() != 0 || event.getCurrentItem().getType() != Material.SADDLE && event.getCurrentItem().getType() != Material.CARPET) {
             return;
         }
 
@@ -61,7 +64,7 @@ public class StoreListener implements Listener {
 
         AbstractHorse abstractHorse = (AbstractHorse) event.getClickedInventory().getHolder();
 
-        ItemStack saddle = new ItemStack(Material.SADDLE, 1);
+        ItemStack saddle = new ItemStack(event.getCurrentItem().getType(), 1);
         ItemMeta saddleMeta = saddle.getItemMeta();
         List<String> lore = createAbstractHorseLore(abstractHorse);
 
@@ -69,40 +72,15 @@ public class StoreListener implements Listener {
             lore.addAll(createHorseLore((Horse) abstractHorse));
         } else if (abstractHorse instanceof Llama) {
             lore.addAll(createLlamaLore((Llama) abstractHorse));
-        } else if (abstractHorse instanceof ChestedHorse) {
-            lore.addAll(createChestedHorseLore((ChestedHorse) abstractHorse));
-        } else if (abstractHorse instanceof ZombieHorse) {
-            lore.addAll(createZombieHorseLore((ZombieHorse) abstractHorse));
-        } else if (abstractHorse instanceof SkeletonHorse) {
-            lore.addAll(createSkeletonHorseLore((SkeletonHorse) abstractHorse));
-        } else {
-            lore.add("ERROR CREATING LORE");
         }
 
-        // Let's not continue if there was an error creating the lore
-        // This shouldn't happen, unless Mojang adds a new horse in a future update
-        if (lore.stream().anyMatch(str -> str.trim().equals("ERROR CREATING LORE"))) {
-            player.sendMessage("Error creating saddle!");
-            return;
-        }
-
-        event.setCancelled(true);
-
+        saddleMeta.setDisplayName("stHorses Saddle");
         saddleMeta.setLore(lore);
         saddle.setItemMeta(saddleMeta);
 
         ItemUtils.addGlow(saddle);
 
-        // Check for full inventory; Drop item or give item to player
-        if (player.getInventory().firstEmpty() == -1) {
-            player.getWorld().dropItem(player.getLocation(), saddle);
-        } else {
-            player.getInventory().addItem(saddle);
-        }
-
-
-        // Remove the saddle
-        event.getClickedInventory().setItem(0, new ItemStack(Material.AIR));
+        // Here we start to **actually** do things in the game
 
         // Drop the horses inventory
         abstractHorse.getInventory().forEach(item -> {
@@ -114,6 +92,18 @@ public class StoreListener implements Listener {
 
         // Remove the horse
         abstractHorse.remove();
+
+        // Remove the saddle
+        event.getClickedInventory().setItem(0, new ItemStack(Material.AIR));
+
+        // Check for full inventory; Drop item or give item to player
+        if (player.getInventory().firstEmpty() == -1) {
+            player.getWorld().dropItem(player.getLocation(), saddle);
+        } else {
+            player.getInventory().addItem(saddle);
+        }
+
+        event.setCancelled(true);
 
     }
 
@@ -138,14 +128,22 @@ public class StoreListener implements Listener {
             ownerUuid = ownerUuid.concat("None");
         }
 
-        String jump = "Jump: " + String.valueOf(abstractHorse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).getValue());
+        double jumpValue = abstractHorse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).getValue();
+
+        // Formula from http://minecraft.gamepedia.com/Horse#StatisticsVZV
+        double jumpValueInBlocks = -0.1817584952 * Math.pow(jumpValue, 3) + 3.689713992 * Math.pow(jumpValue, 2) + 2.128599134 * jumpValue - 0.343930367;
+        jumpValueInBlocks = (double) Math.round(jumpValueInBlocks * 1d) / 1d;
+
+        String jump = "Jump: ~"  + String.valueOf(jumpValueInBlocks) + " blocks";
+        String realJump = "Real Jump: " + String.valueOf(jumpValue);
         String speed = "Speed: " + String.valueOf(abstractHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue());
         String domestication = "Domestication: " + String.valueOf(abstractHorse.getDomestication() + "/" + String.valueOf(abstractHorse.getMaxDomestication()));
         String health = "Health: " + String.valueOf(abstractHorse.getHealth()) + "/" + String.valueOf(abstractHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         String age = "Age: " + String.valueOf(abstractHorse.getAge());
+        String variant = "Variant: " + abstractHorse.getClass().getSimpleName().replace("Craft", "");
 
         lore.addAll(Arrays.asList(
-                name, owner, ownerUuid, jump, speed, domestication, health, age
+                name, owner, ownerUuid, jump, realJump, speed, domestication, health, age, variant
         ));
 
         return lore;
@@ -153,54 +151,14 @@ public class StoreListener implements Listener {
 
     private List<String> createHorseLore(Horse horse) {
         List<String> lore = new ArrayList<>();
-
-        lore.add("Variant: Horse");
         lore.add("Color: " + horse.getColor().toString());
         lore.add("Style: " + horse.getStyle().toString());
-
         return lore;
     }
 
     private List<String> createLlamaLore(Llama llama) {
         List<String> lore = new ArrayList<>();
-
-        lore.add("Variant: Llama");
         lore.add("Color: " + llama.getColor().toString());
-
-        return lore;
-    }
-
-    private List<String> createChestedHorseLore(ChestedHorse chestedHorse) {
-        List<String> lore = new ArrayList<>();
-
-        String variant = "Variant: ";
-
-        if (chestedHorse instanceof Donkey) {
-            variant = variant.concat("Donkey");
-        } else if (chestedHorse instanceof Mule) {
-            variant = variant.concat("Mule");
-        } else {
-            variant = variant.concat("ERROR CREATING LORE");
-        }
-
-        lore.add(variant);
-
-        return lore;
-    }
-
-    private List<String> createSkeletonHorseLore(SkeletonHorse skeletonHorse) {
-        List<String> lore = new ArrayList<>();
-
-        lore.add("Variant: Skeleton");
-
-        return lore;
-    }
-
-    private List<String> createZombieHorseLore(ZombieHorse zombieHorse) {
-        List<String> lore = new ArrayList<>();
-
-        lore.add("Variant: Zombie");
-
         return lore;
     }
 

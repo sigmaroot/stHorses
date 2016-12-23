@@ -2,7 +2,7 @@
 package com.shepherdjerred.sthorses;
 
 import com.shepherdjerred.sthorses.files.ConfigHelper;
-import com.shepherdjerred.sthorses.listeners.PlaceListener;
+import com.shepherdjerred.sthorses.listeners.NewPlaceListener;
 import com.shepherdjerred.sthorses.listeners.StoreListener;
 import com.shepherdjerred.sthorses.metrics.MetricsLite;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,7 +30,7 @@ public class Main extends JavaPlugin {
 
 		// Register events
 		getServer().getPluginManager().registerEvents(new StoreListener(), this);
-		getServer().getPluginManager().registerEvents(new PlaceListener(), this);
+		getServer().getPluginManager().registerEvents(new NewPlaceListener(), this);
 
 		// Setup Metrics
 		try {

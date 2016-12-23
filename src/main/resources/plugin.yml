@@ -12,7 +12,7 @@ permissions:
         children:
             stHorses.save: true
             stHorses.store: true
-    stHorses.spawn:
+    stHorses.place:
         description: Allows saving horses to saddles
         default: true
     stHorses.store:

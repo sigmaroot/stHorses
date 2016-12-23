@@ -1,4 +1,7 @@
 store:
     shiftClickIgnored: true
+
+place:
+    autoMount: false
     safeSpawning: true
     notOnInteractable: true
