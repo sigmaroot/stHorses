@@ -45,8 +45,11 @@ public class StoreListener implements Listener {
             return;
         }
 
-        // Be sure we're clicking on the saddle slot, and that a saddle was clicked
-        if (event.getSlot() != 0 || event.getCurrentItem().getType() != Material.SADDLE && event.getCurrentItem().getType() != Material.CARPET) {
+        if (event.getSlot() != 0 && event.getSlot() != 1) {
+            return;
+        }
+
+        if (event.getCurrentItem().getType() != Material.SADDLE && event.getCurrentItem().getType() != Material.CARPET) {
             return;
         }
 
@@ -80,7 +83,7 @@ public class StoreListener implements Listener {
 
         ItemUtils.addGlow(saddle);
 
-        // Here we start to **actually** do things in the game
+        event.setCurrentItem(new ItemStack(Material.AIR));
 
         // Drop the horses inventory
         abstractHorse.getInventory().forEach(item -> {
@@ -92,9 +95,6 @@ public class StoreListener implements Listener {
 
         // Remove the horse
         abstractHorse.remove();
-
-        // Remove the saddle
-        event.getClickedInventory().setItem(0, new ItemStack(Material.AIR));
 
         // Check for full inventory; Drop item or give item to player
         if (player.getInventory().firstEmpty() == -1) {

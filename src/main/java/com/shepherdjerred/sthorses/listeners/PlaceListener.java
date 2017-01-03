@@ -1,15 +1,10 @@
 package com.shepherdjerred.sthorses.listeners;
 
-import com.shepherdjerred.sthorses.Main;
-import com.shepherdjerred.sthorses.messages.MessageHelper;
-import net.minecraft.server.v1_11_R1.GenericAttributes;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Horse.Color;
-import org.bukkit.entity.Horse.Style;
-import org.bukkit.entity.Player;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,101 +13,152 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-
 public class PlaceListener implements Listener {
-
-    private static List<Material> interactables = Arrays.asList(Material.CHEST, Material.ENDER_CHEST, Material.BREWING_STAND, Material.HOPPER, Material.DISPENSER, Material.FURNACE, Material.BURNING_FURNACE, Material.TRAPPED_CHEST, Material.ENCHANTMENT_TABLE, Material.WORKBENCH);
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInteractEvent(PlayerInteractEvent event) {
 
-        if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK))
-            return;
-
         Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
 
-        if (player.getInventory().getItemInMainHand() != null) {
+        // Check permission
+        if (!player.hasPermission("stHorses.place")) {
+            return;
+        }
 
-            ItemStack item = player.getInventory().getItemInMainHand();
+        // Ensure the player is clicking a block
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
 
-            if (item.getType() == Material.SADDLE && item.getItemMeta() != null) {
+        // Null checks!
+        if (item == null) {
+            return;
+        }
 
-                ItemMeta itemMeta = item.getItemMeta();
+        // Check that it's a saddle or carpet
+        if (item.getType() != Material.SADDLE && item.getType() != Material.CARPET) {
+            return;
+        }
 
-                if (itemMeta.getLore() != null) {
+        // Check that it has a display name and lore
+        if (!item.hasItemMeta() || !item.getItemMeta().hasDisplayName() || !item.getItemMeta().hasLore()) {
+            return;
+        }
 
-                    List<String> itemLore = itemMeta.getLore();
+        ItemMeta itemMeta = item.getItemMeta();
 
-                    // Check that the lore is ours
-                    if (itemLore.get(0).contains("Name:")
-                            && itemLore.get(1).contains("Owner:")
-                            && itemLore.get(2).contains("Variant:")
-                            && itemLore.get(3).contains("Color:")
-                            && itemLore.get(4).contains("Style:")
-                            && itemLore.get(5).contains("Jump:")
-                            && itemLore.get(6).contains("Speed:")
-                            && itemLore.get(7).contains("Health:")
-                            && itemLore.get(8).contains("Domestication:")
-                            && itemLore.get(9).contains("Age:")
-                            && itemLore.get(10).contains("UUID:")) {
+        if (!itemMeta.getLore().stream().anyMatch(lore -> lore.contains("Name: "))) {
+            return;
+        }
 
-                        if (!player.hasPermission("stHorses.spawn")) {
-                            player.sendMessage(MessageHelper.getMessagePrefix() + MessageHelper.colorMessagesString("place.noPermisson"));
-                            return;
-                        }
+        // TODO Check if placing on interactable block
 
+        Location spawnLocation = new Location(event.getClickedBlock().getWorld(),
+                event.getClickedBlock().getX(),
+                event.getClickedBlock().getY() + 1,
+                event.getClickedBlock().getZ());
 
-                        if (Main.getInstance().getConfig().getBoolean("store.notOnInteractable")
-                                && interactables.contains(event.getClickedBlock().getType()))
-                            return;
+        AbstractHorse abstractHorse = createAbstractHorse(itemMeta, spawnLocation);
 
-                        Location location = new Location(event.getClickedBlock().getWorld(),
-                                event.getClickedBlock().getX(),
-                                event.getClickedBlock().getY() + 1,
-                                event.getClickedBlock().getZ());
+        // Something went wrong, let's stop
+        if (abstractHorse == null) {
+            return;
+        }
 
-                        Horse horse = event.getClickedBlock().getWorld().spawn(location, Horse.class);
+        player.getInventory().removeItem(item);
 
-                        if (Main.getInstance().getConfig().getBoolean("store.safeSpawning")
-                                && horse.getEyeLocation().getBlock().getType() != Material.AIR
-                                && horse.getLocation().getBlock().getType() != Material.AIR) {
-                            horse.remove();
-                            event.setCancelled(true);
-                            player.sendMessage(MessageHelper.getMessagePrefix() + MessageHelper.colorMessagesString("store.cantSpawnThere"));
-                            return;
-                        }
+    }
 
-                        player.getInventory().removeItem(item);
+    private AbstractHorse createAbstractHorse(ItemMeta itemMeta, Location location) {
 
-                        CraftLivingEntity horseNMS = (CraftLivingEntity) horse;
-                        String[] horseHealth = itemLore.get(7).replace("Health: ", "").split("/");
-                        String[] horseDom = itemLore.get(8).replace("Domestication: ", "").split("/");
+        List<String> lore = itemMeta.getLore();
 
-                        if ((!itemLore.get(0).equals("Name: None")))
-                            horse.setCustomName(itemLore.get(0).replace("Name: ", ""));
+        // TODO Check for valid lines/lore first, throw exceptions if neeeded
 
-                        horse.setStyle(Style.valueOf(itemLore.get(2).replace("Style: ", "")));
-                        horse.setColor(Color.valueOf(itemLore.get(3).replace("Color: ", "")));
-                        horse.setStyle(Style.valueOf(itemLore.get(4).replace("Style: ", "")));
-                        horse.setJumpStrength(Double.parseDouble(itemLore.get(5).replace("Jump: ", "")));
-                        horseNMS.getHandle().getAttributeInstance(GenericAttributes.MOVEMENT_SPEED)
-                                .setValue(Double.parseDouble(itemLore.get(6).replace("Speed: ", "")));
-                        horse.setMaxHealth(Double.parseDouble(horseHealth[1]));
-                        horse.setHealth(Double.parseDouble(horseHealth[0]));
-                        horse.setDomestication(Integer.parseInt(horseDom[0]));
-                        horse.setMaxDomestication(Integer.parseInt(horseDom[1]));
-                        horse.setAge(Integer.parseInt(itemLore.get(9).replace("Age: ", "")));
-                        horse.setOwner(Main.getInstance().getServer().getOfflinePlayer((UUID.fromString(itemLore.get(10).replace("UUID: ", "")))));
+        String variant = lore.stream().filter(str -> str.contains("Variant: ")).findFirst().get().replace("Variant: ", "");
+        String name = lore.stream().filter(str -> str.contains("Name: ")).findFirst().get().replace("Name: ", "");
+        String ownerUuid = lore.stream().filter(str -> str.contains("Owner UUID: ")).findFirst().get().replace("Owner UUID: ", "");
 
-                        horse.getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
+        String domestication = lore.stream().filter(str -> str.contains("Domestication: ")).findFirst().get().replace("Domestication: ", "");
+        String health = lore.stream().filter(str -> str.contains("Health: ")).findFirst().get().replace("Health: ", "");
 
-                    }
-                }
-            }
+        double jump = Double.valueOf(lore.stream().filter(str -> str.contains("Real Jump: ")).findFirst().get().replace("Real Jump: ", ""));
+        double speed = Double.valueOf(lore.stream().filter(str -> str.contains("Real Speed: ")).findFirst().get().replace("Real Speed: ", ""));
+
+        int age = Integer.valueOf(lore.stream().filter(str -> str.contains("Age: ")).findFirst().get().replace("Age: ", ""));
+
+        AbstractHorse abstractHorse;
+
+        try {
+            Class<?> clazz = Class.forName("org.bukkit.entity." + variant);
+            Class<? extends AbstractHorse> subclass = clazz.asSubclass(AbstractHorse.class);
+            abstractHorse = location.getWorld().spawn(location, subclass);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        if (!name.equals("None")) {
+            abstractHorse.setCustomName(name);
+        }
+
+        if (!ownerUuid.equals("None")) {
+            abstractHorse.setOwner(Bukkit.getOfflinePlayer(UUID.fromString(ownerUuid)));
+        }
+
+        String[] horseHealth = health.replace("Health: ", "").split("/");
+        String[] horseDom = domestication.replace("Domestication: ", "").split("/");
+
+        double horseCurrentHealth = Double.valueOf(horseHealth[0]);
+        double horseMaxHealth = Double.valueOf(horseHealth[1]);
+        int horseCurrentDom = Integer.valueOf(horseDom[0]);
+        int horseMaxDom = Integer.valueOf(horseDom[1]);
+
+        abstractHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(horseMaxHealth);
+        abstractHorse.setHealth(horseCurrentHealth);
+        abstractHorse.setMaxDomestication(horseMaxDom);
+        abstractHorse.setDomestication(horseCurrentDom);
+
+        abstractHorse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).setBaseValue(jump);
+        abstractHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
+        abstractHorse.setAge(age);
+
+        if (abstractHorse instanceof Horse) {
+            createHorse((Horse) abstractHorse, lore);
+        } else if (abstractHorse instanceof Llama) {
+            createLlama((Llama) abstractHorse, lore);
+        }
+
+        giveSaddle(abstractHorse);
+
+        return abstractHorse;
+    }
+
+    private void createHorse(Horse horse, List<String> lore) {
+        String color = lore.stream().filter(str -> str.contains("Color: ")).findFirst().get().replace("Color: ", "");
+        String style = lore.stream().filter(str -> str.contains("Style: ")).findFirst().get().replace("Style: ", "");
+        horse.setColor(Horse.Color.valueOf(color));
+        horse.setStyle(Horse.Style.valueOf(style));
+    }
+
+    private void createLlama(Llama llama, List<String> lore) {
+        String color = lore.stream().filter(str -> str.contains("Color: ")).findFirst().get().replace("Color: ", "");
+        llama.setColor(Llama.Color.valueOf(color));
+    }
+
+    private void giveSaddle (AbstractHorse abstractHorse) {
+        if (abstractHorse instanceof Horse) {
+            ((Horse) abstractHorse).getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
+        } else if (abstractHorse instanceof Llama) {
+            // TODO Set the carpet to the original item used to store the llama
+            abstractHorse.getInventory().setItem(1, new ItemStack(Material.CARPET, 1));
+        } else {
+            abstractHorse.getInventory().setItem(0, new ItemStack(Material.SADDLE, 1));
         }
     }
+
 }
