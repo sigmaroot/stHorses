@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class PlaceListener implements Listener {
@@ -44,8 +45,8 @@ public class PlaceListener implements Listener {
             return;
         }
 
-        // Check that it has a display name and lore
-        if (!item.hasItemMeta() || !item.getItemMeta().hasDisplayName() || !item.getItemMeta().hasLore()) {
+        // Check that it has a lore
+        if (!item.hasItemMeta() || !item.getItemMeta().hasLore()) {
             return;
         }
 
@@ -81,20 +82,37 @@ public class PlaceListener implements Listener {
 
         String variant = lore.stream().filter(str -> str.contains("Variant: ")).findFirst().get().replace("Variant: ", "");
         String name = lore.stream().filter(str -> str.contains("Name: ")).findFirst().get().replace("Name: ", "");
-        String ownerUuid = lore.stream().filter(str -> str.contains("Owner UUID: ")).findFirst().get().replace("Owner UUID: ", "");
+        
+        String ownerUuid = "";
+        try {
+            ownerUuid = lore.stream().filter(str -> str.contains("Owner UUID: ")).findFirst().get().replace("Owner UUID: ", "");
+        } catch (NoSuchElementException e) {
+            ownerUuid = lore.stream().filter(str -> str.contains("UUID: ")).findFirst().get().replace("UUID: ", "");
+        }        
 
         String domestication = lore.stream().filter(str -> str.contains("Domestication: ")).findFirst().get().replace("Domestication: ", "");
         String health = lore.stream().filter(str -> str.contains("Health: ")).findFirst().get().replace("Health: ", "");
 
-        double jump = Double.valueOf(lore.stream().filter(str -> str.contains("Real Jump: ")).findFirst().get().replace("Real Jump: ", ""));
-        double speed = Double.valueOf(lore.stream().filter(str -> str.contains("Real Speed: ")).findFirst().get().replace("Real Speed: ", ""));
+        double jump = 0.0D;
+        try {
+            jump = Double.valueOf(lore.stream().filter(str -> str.contains("Real Jump: ")).findFirst().get().replace("Real Jump: ", ""));
+        } catch (NoSuchElementException e) {
+            jump = Double.valueOf(lore.stream().filter(str -> str.contains("Jump: ")).findFirst().get().replace("Jump: ", ""));
+        }
+        
+        double speed = 0.0D;
+        try {
+            speed = Double.valueOf(lore.stream().filter(str -> str.contains("Real Speed: ")).findFirst().get().replace("Real Speed: ", ""));
+        } catch (NoSuchElementException e) {
+            speed = Double.valueOf(lore.stream().filter(str -> str.contains("Speed: ")).findFirst().get().replace("Speed: ", ""));
+        }
 
         int age = Integer.valueOf(lore.stream().filter(str -> str.contains("Age: ")).findFirst().get().replace("Age: ", ""));
 
         AbstractHorse abstractHorse;
 
         try {
-            Class<?> clazz = Class.forName("org.bukkit.entity." + variant);
+            Class<?> clazz = Class.forName("org.bukkit.entity." + translateOldVariants(variant));
             Class<? extends AbstractHorse> subclass = clazz.asSubclass(AbstractHorse.class);
             abstractHorse = location.getWorld().spawn(location, subclass);
         } catch (ClassNotFoundException e) {
@@ -136,6 +154,21 @@ public class PlaceListener implements Listener {
         giveSaddle(abstractHorse);
 
         return abstractHorse;
+    }
+    
+    private String translateOldVariants(String variant) {
+        switch (variant) {
+        case "DONKEY":
+            return "Horse";
+        case "HORSE":
+            return "Horse";
+        case "MULE":
+            return "Mule";
+        case "SKELETON_HORSE":
+            return "SkeletonHorse";
+        default:
+            return variant;
+        }
     }
 
     private void createHorse(Horse horse, List<String> lore) {
