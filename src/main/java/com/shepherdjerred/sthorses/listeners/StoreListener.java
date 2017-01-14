@@ -54,7 +54,7 @@ public class StoreListener implements Listener {
         }
 
         // Don't continue if we're ignoring shift-clicks
-        if (Main.getInstance().getConfig().getBoolean("store.ShiftClickIgnored")) {
+        if (Main.getInstance().getConfig().getBoolean("store.shiftClickIgnored")) {
             if (!ALLOWED_ACTIONS.contains(event.getAction())) {
                 return;
             }
