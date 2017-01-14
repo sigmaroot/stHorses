@@ -1,5 +1,6 @@
 package com.shepherdjerred.sthorses.listeners;
 
+import com.shepherdjerred.sthorses.util.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -108,6 +109,13 @@ public class PlaceListener implements Listener {
         }
 
         int age = Integer.valueOf(lore.stream().filter(str -> str.contains("Age: ")).findFirst().get().replace("Age: ", ""));
+        
+        String carpetColor = "";
+        try {
+            carpetColor = lore.stream().filter(str -> str.contains("Carpet: ")).findFirst().get().replace("Carpet: ", "");
+        } catch (NoSuchElementException e) {
+            carpetColor = "WHITE";
+        }
 
         AbstractHorse abstractHorse;
 
@@ -151,7 +159,13 @@ public class PlaceListener implements Listener {
             createLlama((Llama) abstractHorse, lore);
         }
 
-        giveSaddle(abstractHorse);
+        if (abstractHorse instanceof Horse) {
+            giveSaddle(abstractHorse);
+        } else if (abstractHorse instanceof Llama) {
+            giveCarpet(abstractHorse, carpetColor);
+        } else {
+            abstractHorse.getInventory().setItem(0, new ItemStack(Material.SADDLE, 1));
+        }
 
         return abstractHorse;
     }
@@ -184,14 +198,13 @@ public class PlaceListener implements Listener {
     }
 
     private void giveSaddle (AbstractHorse abstractHorse) {
-        if (abstractHorse instanceof Horse) {
-            ((Horse) abstractHorse).getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
-        } else if (abstractHorse instanceof Llama) {
-            // TODO Set the carpet to the original item used to store the llama
-            abstractHorse.getInventory().setItem(1, new ItemStack(Material.CARPET, 1));
-        } else {
-            abstractHorse.getInventory().setItem(0, new ItemStack(Material.SADDLE, 1));
-        }
+        ((Horse) abstractHorse).getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
+    }
+    
+    private void giveCarpet (AbstractHorse abstractHorse, String carpetColor) {
+        ItemStack carpet = new ItemStack(Material.CARPET, 1);
+        carpet.setDurability(ItemUtils.getCarpetColorAsShort(carpetColor));
+        abstractHorse.getInventory().setItem(1, carpet);
     }
 
 }

@@ -75,6 +75,10 @@ public class StoreListener implements Listener {
             lore.addAll(createHorseLore((Horse) abstractHorse));
         } else if (abstractHorse instanceof Llama) {
             lore.addAll(createLlamaLore((Llama) abstractHorse));
+            short colorCode = event.getCurrentItem().getDurability();
+            String carpetColor = ItemUtils.getCarpetColorAsString(colorCode);
+            saddle.setDurability(colorCode);
+            lore.add("Carpet: " + carpetColor);            
         }
 
         saddleMeta.setDisplayName("stHorses Saddle");
