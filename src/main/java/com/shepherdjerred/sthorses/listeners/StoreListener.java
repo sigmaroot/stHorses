@@ -5,6 +5,7 @@ import com.shepherdjerred.sthorses.util.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Player;
@@ -88,6 +89,15 @@ public class StoreListener implements Listener {
         ItemUtils.addGlow(saddle);
 
         event.setCurrentItem(new ItemStack(Material.AIR));
+
+        // Drop the horses chest, if carrying
+        if (abstractHorse instanceof ChestedHorse) {
+            ChestedHorse chestedHorse = (ChestedHorse) abstractHorse;
+            if (chestedHorse.isCarryingChest()) {
+                ItemStack chestToDrop = new ItemStack(Material.CHEST, 1);
+                chestedHorse.getWorld().dropItem(chestedHorse.getLocation(), chestToDrop);
+            }
+        }
 
         // Drop the horses inventory
         abstractHorse.getInventory().forEach(item -> {
