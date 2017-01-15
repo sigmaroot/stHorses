@@ -64,7 +64,7 @@ public class PlaceListener implements Listener {
                 event.getClickedBlock().getY() + 1,
                 event.getClickedBlock().getZ());
 
-        AbstractHorse abstractHorse = createAbstractHorse(itemMeta, spawnLocation);
+        AbstractHorse abstractHorse = createAbstractHorse(itemMeta, spawnLocation, player);
 
         // Something went wrong, let's stop
         if (abstractHorse == null) {
@@ -75,7 +75,7 @@ public class PlaceListener implements Listener {
 
     }
 
-    private AbstractHorse createAbstractHorse(ItemMeta itemMeta, Location location) {
+    private AbstractHorse createAbstractHorse(ItemMeta itemMeta, Location location, Player spawner) {
 
         List<String> lore = itemMeta.getLore();
 
@@ -134,6 +134,8 @@ public class PlaceListener implements Listener {
 
         if (!ownerUuid.equals("None")) {
             abstractHorse.setOwner(Bukkit.getOfflinePlayer(UUID.fromString(ownerUuid)));
+        } else {
+            abstractHorse.setOwner(Bukkit.getOfflinePlayer(spawner.getUniqueId()));
         }
 
         String[] horseHealth = health.replace("Health: ", "").split("/");
